@@ -14,7 +14,7 @@ The project is currently in early development. The first goal is a lightweight, 
 
 ## Preview
 
-<img src="docs/assets/popdeck-hub-demo.gif" width="720" alt="PopDeck launcher demo">
+<img src="docs/assets/popdeck-hub-demo.webp" width="420" alt="PopDeck launcher demo">
 
 ## Features
 
