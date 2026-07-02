@@ -28,6 +28,15 @@ It also adds the app rpath required for the executable to load the embedded fram
 @executable_path/../Frameworks
 ```
 
+The packaged app is also ad-hoc signed after clearing extended attributes:
+
+```bash
+xattr -cr .build/PopDeck.app
+codesign --force --deep --sign - .build/PopDeck.app
+```
+
+This does not replace Developer ID signing, but it gives Sparkle's embedded XPC services and updater app a valid local signing boundary for development builds.
+
 ## Signing An Update Archive
 
 After creating a release zip:

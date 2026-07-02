@@ -10,8 +10,8 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="$ROOT_DIR/.build/arm64-apple-macosx/$CONFIGURATION"
 APP_DIR="$ROOT_DIR/.build/$APP_NAME.app"
 EXECUTABLE="$BUILD_DIR/$APP_NAME"
-RESOURCE_BUNDLE="$BUILD_DIR/PopDeck_PopDeck.bundle"
-ICON_FILE="$ROOT_DIR/Sources/HaloHub/Resources/AppIcon.icns"
+RESOURCE_DIR="$ROOT_DIR/Sources/HaloHub/Resources"
+ICON_FILE="$RESOURCE_DIR/AppIcon.icns"
 
 swift build -c "$CONFIGURATION"
 
@@ -19,8 +19,9 @@ rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources" "$APP_DIR/Contents/Frameworks"
 
 cp "$EXECUTABLE" "$APP_DIR/Contents/MacOS/$APP_NAME"
-cp -R "$RESOURCE_BUNDLE" "$APP_DIR/PopDeck_PopDeck.bundle"
 cp "$ICON_FILE" "$APP_DIR/Contents/Resources/AppIcon.icns"
+cp "$RESOURCE_DIR/AppIcon-1024.png" "$APP_DIR/Contents/Resources/AppIcon-1024.png"
+cp "$RESOURCE_DIR/MenuBarIcon-template.png" "$APP_DIR/Contents/Resources/MenuBarIcon-template.png"
 
 SPARKLE_FRAMEWORK="$(find "$ROOT_DIR/.build/artifacts" -maxdepth 5 -path '*/Sparkle.framework' -type d 2>/dev/null | head -n 1 || true)"
 if [[ -z "$SPARKLE_FRAMEWORK" ]]; then
@@ -66,5 +67,8 @@ cat > "$APP_DIR/Contents/Info.plist" <<PLIST
 </dict>
 </plist>
 PLIST
+
+xattr -cr "$APP_DIR"
+codesign --force --deep --sign - "$APP_DIR"
 
 echo "Built $APP_DIR"

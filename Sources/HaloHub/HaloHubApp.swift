@@ -60,9 +60,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func setupApplicationIcon() {
-        let iconImage = Bundle.module.url(forResource: "AppIcon", withExtension: "icns")
+        let iconImage = Bundle.main.url(forResource: "AppIcon", withExtension: "icns")
             .flatMap(NSImage.init(contentsOf:))
-            ?? Bundle.module.url(forResource: "AppIcon-1024", withExtension: "png")
+            ?? Bundle.main.url(forResource: "AppIcon-1024", withExtension: "png")
                 .flatMap(NSImage.init(contentsOf:))
 
         guard let iconImage else {
@@ -83,7 +83,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func menuBarIconImage() -> NSImage? {
-        let image = Bundle.module.url(forResource: "MenuBarIcon-template", withExtension: "png")
+        let image = Bundle.main.url(forResource: "MenuBarIcon-template", withExtension: "png")
             .flatMap(NSImage.init(contentsOf:))
             ?? NSImage(systemSymbolName: "circle.hexagongrid.circle", accessibilityDescription: "PopDeck")
 
