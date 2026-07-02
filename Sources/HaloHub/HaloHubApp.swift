@@ -82,6 +82,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             name: HaloShortcut.didChangeNotification,
             object: nil
         )
+        presentPermissionNoticeIfNeeded()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -205,6 +206,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func showSettings() {
         SettingsWindowController.shared.show()
+    }
+
+    private func presentPermissionNoticeIfNeeded() {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: SystemPermissionService.firstLaunchNoticeKey) else { return }
+
+        let status = SystemPermissionStatus.current
+        guard !status.allRequiredGranted else { return }
+        defaults.set(true, forKey: SystemPermissionService.firstLaunchNoticeKey)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            NSApp.activate(ignoringOtherApps: true)
+
+            let alert = NSAlert()
+            alert.messageText = L10n.t("permissions.launch.title")
+            alert.informativeText = L10n.t("permissions.launch.message")
+            alert.alertStyle = .informational
+            alert.addButton(withTitle: L10n.t("permissions.launch.openSettings"))
+            alert.addButton(withTitle: L10n.t("permissions.launch.later"))
+
+            if alert.runModal() == .alertFirstButtonReturn {
+                SystemPermissionKind.allCases.forEach { SystemPermissionService.request($0) }
+                let firstMissing = SystemPermissionKind.allCases.first { !status.isGranted($0) } ?? .accessibility
+                SystemPermissionService.openSettings(for: firstMissing)
+                SettingsWindowController.shared.show()
+            }
+        }
     }
 
     @objc private func quit() {

@@ -108,6 +108,10 @@ struct HaloPanelView: View {
         .onReceive(NotificationCenter.default.publisher(for: .haloPanelWillClose)) { _ in
             startExitAnimation()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .haloPanelMouseMoved)) { notification in
+            guard let value = notification.object as? NSValue else { return }
+            hoveredID = hoveredItemID(at: value.pointValue)
+        }
     }
 
     private func startEntranceAnimation() {

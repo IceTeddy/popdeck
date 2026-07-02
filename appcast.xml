@@ -6,6 +6,17 @@
         <description>Appcast feed for PopDeck automatic updates.</description>
         <language>en</language>
         <item>
+            <title>0.1.4</title>
+            <pubDate>Thu, 02 Jul 2026 16:33:52 +0800</pubDate>
+            <link>https://github.com/IceTeddy/popdeck</link>
+            <sparkle:fullReleaseNotesLink>https://github.com/IceTeddy/popdeck/releases/tag/v0.1.4</sparkle:fullReleaseNotesLink>
+            <sparkle:version>5</sparkle:version>
+            <sparkle:shortVersionString>0.1.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/IceTeddy/popdeck/releases/download/v0.1.4/PopDeck-0.1.4.zip" length="2478633" type="application/octet-stream" sparkle:edSignature="V+TAATqfBfossz52VhIEEHIB3vVkjnbtwMIwSAEa9w6evP+IIVpkRVHQ3qa8vvw7BQ7E+r8v145L31c2MaNyCw=="/>
+        </item>
+        <item>
             <title>0.1.3</title>
             <pubDate>Thu, 02 Jul 2026 15:46:03 +0800</pubDate>
             <link>https://github.com/IceTeddy/popdeck</link>
@@ -26,17 +37,6 @@
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
             <enclosure url="https://github.com/IceTeddy/popdeck/releases/download/v0.1.2/PopDeck-0.1.2.zip" length="3268888" type="application/octet-stream" sparkle:edSignature="46652yPZUgXXFdrnnDMiagXjcc0IT9Z3KtLydmrmGVfDsnB7JVFQ4NAaIzSMcjzfIWpNrmlykV/ZWvySu6NcCg=="/>
-        </item>
-        <item>
-            <title>0.1.1</title>
-            <pubDate>Thu, 02 Jul 2026 14:28:01 +0800</pubDate>
-            <link>https://github.com/IceTeddy/popdeck</link>
-            <sparkle:fullReleaseNotesLink>https://github.com/IceTeddy/popdeck/releases/tag/v0.1.1</sparkle:fullReleaseNotesLink>
-            <sparkle:version>2</sparkle:version>
-            <sparkle:shortVersionString>0.1.1</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/IceTeddy/popdeck/releases/download/v0.1.1/PopDeck-0.1.1.zip" length="3267737" type="application/octet-stream" sparkle:edSignature="e/V4rni3+t2W8NatESxBukCl1IRU3n6T3WX0A4SK+GBCUCFMdGjLPjFhPlmpmFS49OsGlQ3ouWhavOlR4uYgAQ=="/>
         </item>
     </channel>
 </rss>

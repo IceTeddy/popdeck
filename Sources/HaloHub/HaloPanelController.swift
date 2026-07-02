@@ -11,6 +11,7 @@ final class HaloPanelController {
     private var globalMouseMonitor: Any?
     private var isHiding = false
     private var presentationID = 0
+    private var hideRequestID = 0
 
     var isVisible: Bool {
         panel?.isVisible == true
@@ -27,6 +28,7 @@ final class HaloPanelController {
             isHiding = false
         }
 
+        hideRequestID += 1
         if panel == nil {
             panel = makePanel()
         }
@@ -43,16 +45,20 @@ final class HaloPanelController {
         panel.orderFrontRegardless()
         NSApp.activate(ignoringOtherApps: false)
         startOutsideClickMonitoring()
+        publishHoverLocation(onScreen: NSEvent.mouseLocation)
     }
 
     func hide() {
         guard let panel, panel.isVisible, !isHiding else { return }
         isHiding = true
+        hideRequestID += 1
+        let requestID = hideRequestID
         stopOutsideClickMonitoring()
         NotificationCenter.default.post(name: .haloPanelWillClose, object: nil)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) { [weak self] in
             guard let self else { return }
+            guard self.hideRequestID == requestID else { return }
             panel.orderOut(nil)
             self.isHiding = false
         }
@@ -68,6 +74,7 @@ final class HaloPanelController {
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = false
+        panel.acceptsMouseMovedEvents = true
         panel.level = .floating
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         panel.hidesOnDeactivate = false
@@ -98,8 +105,12 @@ final class HaloPanelController {
     private func startOutsideClickMonitoring() {
         stopOutsideClickMonitoring()
 
-        localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+        localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .mouseMoved]) { [weak self] event in
             guard let self else { return event }
+            if event.type == .mouseMoved {
+                self.publishHoverLocation(onScreen: NSEvent.mouseLocation)
+                return event
+            }
             if !self.isPointInsideHubCircle(NSEvent.mouseLocation) {
                 self.hide()
             }
@@ -114,6 +125,21 @@ final class HaloPanelController {
                 }
             }
         }
+    }
+
+    private func publishHoverLocation(inWindow windowPoint: NSPoint) {
+        guard let panel, panel.isVisible else { return }
+        guard let hostingView else { return }
+        let viewPoint = hostingView.convert(windowPoint, from: nil)
+        NotificationCenter.default.post(
+            name: .haloPanelMouseMoved,
+            object: NSValue(point: viewPoint)
+        )
+    }
+
+    private func publishHoverLocation(onScreen screenPoint: NSPoint) {
+        guard let panel, panel.isVisible else { return }
+        publishHoverLocation(inWindow: panel.convertPoint(fromScreen: screenPoint))
     }
 
     private func stopOutsideClickMonitoring() {
@@ -142,4 +168,5 @@ final class HaloPanelController {
 
 extension Notification.Name {
     static let haloPanelWillClose = Notification.Name("HaloPanelWillClose")
+    static let haloPanelMouseMoved = Notification.Name("HaloPanelMouseMoved")
 }

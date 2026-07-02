@@ -15,6 +15,7 @@ struct SettingsView: View {
     @State private var shortcutRecordingPreview: String?
     @State private var shortcut = HaloShortcut.current
     @State private var launchAtLogin = LoginItemService.isEnabled
+    @State private var permissionStatus = SystemPermissionStatus.current
 
     private let settingsControlColumnWidth: CGFloat = 184
 
@@ -127,6 +128,8 @@ struct SettingsView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 12)
+
+                        permissionStatusCard
 
                         HStack(spacing: 14) {
                             shortcutTile
@@ -362,12 +365,126 @@ struct SettingsView: View {
         }
         .onAppear {
             launchAtLogin = LoginItemService.isEnabled
+            refreshPermissionStatus()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            refreshPermissionStatus()
         }
         .onReceive(NotificationCenter.default.publisher(for: HaloMenuStore.itemLimitReachedNotification)) { _ in
             isAddingURL = false
             DispatchQueue.main.async {
                 activeAlert = .itemLimitReached
             }
+        }
+    }
+
+    private var permissionStatusCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: permissionStatus.allRequiredGranted ? "checkmark.shield.fill" : "exclamationmark.shield.fill")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle((permissionStatus.allRequiredGranted ? Color.green : Color.orange).opacity(0.95))
+                    .frame(width: 34)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L10n.t("settings.permissions.title"))
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.92))
+                    Text(permissionStatus.allRequiredGranted ? L10n.t("settings.permissions.subtitle.ready") : L10n.t("settings.permissions.subtitle.needsAction"))
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.58))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer()
+
+                Button {
+                    refreshPermissionStatus()
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 13, weight: .semibold))
+                        .frame(width: 26, height: 26)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.white.opacity(0.86))
+                .background(.white.opacity(0.10), in: Circle())
+                .help(L10n.t("settings.permissions.refresh"))
+            }
+
+            VStack(spacing: 8) {
+                ForEach(SystemPermissionKind.allCases) { kind in
+                    permissionRow(for: kind)
+                }
+            }
+        }
+        .padding(15)
+        .frame(maxWidth: .infinity)
+        .background(.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder((permissionStatus.allRequiredGranted ? Color.green.opacity(0.22) : Color.orange.opacity(0.24)), lineWidth: 1)
+        )
+    }
+
+    private func permissionRow(for kind: SystemPermissionKind) -> some View {
+        let isGranted = permissionStatus.isGranted(kind)
+
+        return HStack(alignment: .center, spacing: 10) {
+            Image(systemName: isGranted ? "checkmark.circle.fill" : "xmark.circle.fill")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(isGranted ? Color.green.opacity(0.92) : Color.orange.opacity(0.92))
+                .frame(width: 20)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(kind.title)
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.90))
+                Text(kind.detail)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.52))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 10)
+
+            Text(isGranted ? L10n.t("settings.permissions.granted") : L10n.t("settings.permissions.missing"))
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundStyle(isGranted ? Color.green.opacity(0.92) : Color.orange.opacity(0.92))
+                .frame(width: 62, alignment: .trailing)
+
+            if !isGranted {
+                Button {
+                    SystemPermissionService.request(kind)
+                    SystemPermissionService.openSettings(for: kind)
+                    schedulePermissionRefresh()
+                } label: {
+                    Text(L10n.t("settings.permissions.open"))
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .frame(width: 72)
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 6)
+                .background(.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .strokeBorder(.white.opacity(0.16), lineWidth: 1)
+                )
+                .foregroundStyle(.white.opacity(0.92))
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func refreshPermissionStatus() {
+        permissionStatus = SystemPermissionStatus.current
+    }
+
+    private func schedulePermissionRefresh() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            refreshPermissionStatus()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            refreshPermissionStatus()
         }
     }
 

@@ -67,13 +67,13 @@ The app bundle is created at:
 The release artifacts are written to `dist/`:
 
 ```text
-dist/PopDeck-0.1.3.zip
-dist/PopDeck-0.1.3.zip.sha256
+dist/PopDeck-0.1.4.zip
+dist/PopDeck-0.1.4.zip.sha256
 ```
 
 ## Install And Open
 
-1. Download `PopDeck-0.1.3.zip` from GitHub Releases.
+1. Download `PopDeck-0.1.4.zip` from GitHub Releases.
 2. Unzip it and move `PopDeck.app` to the Applications folder.
 3. Open PopDeck.
 
@@ -88,8 +88,8 @@ Developer ID signing and notarization are planned for a future release.
 
 - App name: `PopDeck`
 - Bundle identifier: `com.tangfanx.popdeck`
-- Current version: `0.1.3`
-- Current build: `4`
+- Current version: `0.1.4`
+- Current build: `5`
 
 ## Roadmap
 
