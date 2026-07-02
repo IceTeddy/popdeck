@@ -1,6 +1,12 @@
-# PopDeck
+<p align="center">
+  <img src="docs/assets/popdeck-logo.png" width="128" alt="PopDeck logo">
+</p>
 
-[English](README.md) | [中文](README.zh-CN.md)
+<h1 align="center">PopDeck</h1>
+
+<p align="center">
+  <a href="README.md">English</a> | <a href="README.zh-CN.md">中文</a>
+</p>
 
 PopDeck 是一款使用 SwiftUI 和 AppKit 构建的原生 macOS 弹出式启动器。它常驻菜单栏，可以在鼠标指针附近呼出启动面板，用来快速打开常用应用、文件夹、文件和网页链接。
 
