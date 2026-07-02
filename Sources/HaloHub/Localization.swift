@@ -31,6 +31,15 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         let rawValue = UserDefaults.standard.string(forKey: storageKey) ?? AppLanguage.zhHans.rawValue
         return AppLanguage(rawValue: rawValue) ?? .zhHans
     }
+
+    var sparkleAppleLanguages: [String] {
+        switch self {
+        case .zhHans:
+            return ["zh-Hans", "zh_CN", "zh", "en"]
+        case .en:
+            return ["en"]
+        }
+    }
 }
 
 enum AppPreferences {

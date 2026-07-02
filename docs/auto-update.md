@@ -18,6 +18,11 @@ The menu bar menu includes a `Check for Updates...` item wired to Sparkle's `SPU
 
 Sparkle is only enabled when PopDeck is running from a packaged `.app` bundle with `SUFeedURL` and `SUPublicEDKey` in its `Info.plist`.
 
+Sparkle's standard UI uses bundle localization. PopDeck bridges its in-app language setting to Sparkle by setting the app's `AppleLanguages` preference before creating `SPUStandardUpdaterController`.
+
+- Chinese setting: `zh-Hans`, `zh_CN`, `zh`, then `en`
+- English setting: `en`
+
 Do not use `swift run` to test Sparkle. `swift run` starts a bare executable instead of the packaged app bundle, so Sparkle cannot reliably launch its updater services. Use:
 
 ```bash

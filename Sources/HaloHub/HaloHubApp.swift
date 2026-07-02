@@ -18,23 +18,40 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private let hotKeyService = HotKeyService()
     private let singleInstanceGuard = SingleInstanceGuard()
-    private lazy var updaterController: SPUStandardUpdaterController? = {
-        guard Self.canStartSparkleUpdater else {
-            NSLog("PopDeck Sparkle updater is disabled because the app is not running from a packaged .app bundle.")
-            return nil
-        }
-        return SPUStandardUpdaterController(
-            startingUpdater: true,
-            updaterDelegate: nil,
-            userDriverDelegate: nil
-        )
-    }()
+    private var updaterController: SPUStandardUpdaterController?
+    private var updaterLanguage: AppLanguage?
     private var shortcutRecordingHandler: ((HaloShortcut) -> Void)?
 
     private static var canStartSparkleUpdater: Bool {
         Bundle.main.bundleURL.pathExtension == "app"
             && Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil
             && Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") != nil
+    }
+
+    private func localizedUpdaterController() -> SPUStandardUpdaterController? {
+        guard Self.canStartSparkleUpdater else {
+            NSLog("PopDeck Sparkle updater is disabled because the app is not running from a packaged .app bundle.")
+            updaterController = nil
+            updaterLanguage = nil
+            return nil
+        }
+
+        let language = AppLanguage.current
+        if let updaterController, updaterLanguage == language {
+            return updaterController
+        }
+
+        UserDefaults.standard.set(language.sparkleAppleLanguages, forKey: "AppleLanguages")
+        UserDefaults.standard.synchronize()
+
+        let controller = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
+        updaterController = controller
+        updaterLanguage = language
+        return controller
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -114,7 +131,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: L10n.t("menu.show"), action: #selector(showHalo), keyEquivalent: "h"))
         menu.addItem(NSMenuItem(title: L10n.t("menu.settings"), action: #selector(showSettings), keyEquivalent: ","))
         let checkForUpdatesItem: NSMenuItem
-        if let updaterController {
+        if let updaterController = localizedUpdaterController() {
             checkForUpdatesItem = NSMenuItem(
                 title: L10n.t("menu.checkForUpdates"),
                 action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
