@@ -6,8 +6,8 @@ This document describes the current manual release process for PopDeck. It is in
 
 - App name: `PopDeck`
 - Bundle identifier: `com.tangfanx.popdeck`
-- Version: `0.1.0`
-- Build: `1`
+- Version: `0.1.1`
+- Build: `2`
 - Minimum macOS version: `14.0`
 
 ## Create Local Artifacts
@@ -21,20 +21,20 @@ From the repository root:
 This creates:
 
 ```text
-dist/PopDeck-0.1.0.zip
-dist/PopDeck-0.1.0.zip.sha256
+dist/PopDeck-0.1.1.zip
+dist/PopDeck-0.1.1.zip.sha256
 ```
 
 ## Publish On GitHub
 
-1. Create a GitHub Release tag such as `v0.1.0`.
-2. Upload `dist/PopDeck-0.1.0.zip`.
-3. Include the SHA256 value from `dist/PopDeck-0.1.0.zip.sha256` in the release notes.
+1. Create a GitHub Release tag such as `v0.1.1`.
+2. Upload `dist/PopDeck-0.1.1.zip`.
+3. Include the SHA256 value from `dist/PopDeck-0.1.1.zip.sha256` in the release notes.
 4. Clearly state that the build is currently unsigned.
 
 ## Before Public Promotion
 
 - Add Developer ID signing.
 - Add Apple notarization.
-- Publish the first Sparkle-enabled update.
+- Verify the Sparkle update flow from the previous release.
 - Decide whether appcast and release assets should stay on GitHub Releases or move to Cloudflare R2.
