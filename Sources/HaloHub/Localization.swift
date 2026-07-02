@@ -35,9 +35,18 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     var sparkleAppleLanguages: [String] {
         switch self {
         case .zhHans:
-            return ["zh-Hans", "zh_CN", "zh", "en"]
+            return ["zh_CN", "zh-Hans", "zh", "en"]
         case .en:
             return ["en"]
+        }
+    }
+
+    var sparkleAppleLocale: String {
+        switch self {
+        case .zhHans:
+            return "zh_CN"
+        case .en:
+            return "en_US"
         }
     }
 }

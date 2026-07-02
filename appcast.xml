@@ -6,6 +6,17 @@
         <description>Appcast feed for PopDeck automatic updates.</description>
         <language>en</language>
         <item>
+            <title>0.1.2</title>
+            <pubDate>Thu, 02 Jul 2026 15:09:11 +0800</pubDate>
+            <link>https://github.com/IceTeddy/popdeck</link>
+            <sparkle:fullReleaseNotesLink>https://github.com/IceTeddy/popdeck/releases/tag/v0.1.2</sparkle:fullReleaseNotesLink>
+            <sparkle:version>3</sparkle:version>
+            <sparkle:shortVersionString>0.1.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://github.com/IceTeddy/popdeck/releases/download/v0.1.2/PopDeck-0.1.2.zip" length="3268888" type="application/octet-stream" sparkle:edSignature="46652yPZUgXXFdrnnDMiagXjcc0IT9Z3KtLydmrmGVfDsnB7JVFQ4NAaIzSMcjzfIWpNrmlykV/ZWvySu6NcCg=="/>
+        </item>
+        <item>
             <title>0.1.1</title>
             <pubDate>Thu, 02 Jul 2026 14:28:01 +0800</pubDate>
             <link>https://github.com/IceTeddy/popdeck</link>

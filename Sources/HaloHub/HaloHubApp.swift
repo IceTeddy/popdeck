@@ -42,6 +42,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         UserDefaults.standard.set(language.sparkleAppleLanguages, forKey: "AppleLanguages")
+        UserDefaults.standard.set(language.sparkleAppleLocale, forKey: "AppleLocale")
         UserDefaults.standard.synchronize()
 
         let controller = SPUStandardUpdaterController(

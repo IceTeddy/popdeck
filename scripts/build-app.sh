@@ -17,11 +17,15 @@ swift build -c "$CONFIGURATION"
 
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources" "$APP_DIR/Contents/Frameworks"
+mkdir -p "$APP_DIR/Contents/Resources/en.lproj" "$APP_DIR/Contents/Resources/zh_CN.lproj"
 
 cp "$EXECUTABLE" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp "$ICON_FILE" "$APP_DIR/Contents/Resources/AppIcon.icns"
 cp "$RESOURCE_DIR/AppIcon-1024.png" "$APP_DIR/Contents/Resources/AppIcon-1024.png"
 cp "$RESOURCE_DIR/MenuBarIcon-template.png" "$APP_DIR/Contents/Resources/MenuBarIcon-template.png"
+
+printf '"CFBundleDisplayName" = "PopDeck";\nCFBundleName = "PopDeck";\n' > "$APP_DIR/Contents/Resources/en.lproj/InfoPlist.strings"
+printf '"CFBundleDisplayName" = "PopDeck";\nCFBundleName = "PopDeck";\n' > "$APP_DIR/Contents/Resources/zh_CN.lproj/InfoPlist.strings"
 
 SPARKLE_FRAMEWORK="$(find "$ROOT_DIR/.build/artifacts" -maxdepth 5 -path '*/Sparkle.framework' -type d 2>/dev/null | head -n 1 || true)"
 if [[ -z "$SPARKLE_FRAMEWORK" ]]; then
@@ -46,6 +50,13 @@ cat > "$APP_DIR/Contents/Info.plist" <<PLIST
     <string>$BUNDLE_ID</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
+    <key>CFBundleAllowMixedLocalizations</key>
+    <true/>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>zh_CN</string>
+    </array>
     <key>CFBundleName</key>
     <string>$APP_NAME</string>
     <key>CFBundlePackageType</key>
