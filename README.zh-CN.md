@@ -66,7 +66,18 @@ dist/PopDeck-0.1.0.zip
 dist/PopDeck-0.1.0.zip.sha256
 ```
 
-当前发布构建尚未签名。添加 Developer ID 签名和 Apple notarization 之前，用户可能需要在 macOS 隐私与安全性中手动允许打开应用。
+## 安装与首次打开
+
+1. 从 GitHub Releases 下载 `PopDeck-0.1.0.zip`。
+2. 解压后，将 `PopDeck.app` 移动到“应用程序”文件夹。
+3. 打开 PopDeck。
+
+当前发布构建尚未签名。如果 macOS 阻止打开应用，可以使用下面任意一种方式：
+
+- 按住 Control 键点击 `PopDeck.app`，选择“打开”，然后在确认弹窗中再次选择“打开”。
+- 或打开“系统设置”，进入“隐私与安全性”，找到 PopDeck 被阻止的提示，然后选择“仍要打开”。
+
+Developer ID 签名和 Apple notarization 会在后续版本中加入。
 
 ## 项目标识
 

@@ -65,7 +65,18 @@ dist/PopDeck-0.1.0.zip
 dist/PopDeck-0.1.0.zip.sha256
 ```
 
-Current release builds are unsigned. Users may need to allow the app manually in macOS Privacy & Security until Developer ID signing and notarization are added.
+## Install And Open
+
+1. Download `PopDeck-0.1.0.zip` from GitHub Releases.
+2. Unzip it and move `PopDeck.app` to the Applications folder.
+3. Open PopDeck.
+
+Current release builds are unsigned. If macOS blocks the app, use one of these methods:
+
+- Control-click `PopDeck.app`, choose Open, then choose Open again in the confirmation dialog.
+- Or open System Settings, go to Privacy & Security, find the blocked PopDeck message, and choose Open Anyway.
+
+Developer ID signing and notarization are planned for a future release.
 
 ## Project Identity
 
