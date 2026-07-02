@@ -18,12 +18,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private let hotKeyService = HotKeyService()
     private let singleInstanceGuard = SingleInstanceGuard()
-    private let updaterController = SPUStandardUpdaterController(
-        startingUpdater: true,
-        updaterDelegate: nil,
-        userDriverDelegate: nil
-    )
+    private lazy var updaterController: SPUStandardUpdaterController? = {
+        guard Self.canStartSparkleUpdater else {
+            NSLog("PopDeck Sparkle updater is disabled because the app is not running from a packaged .app bundle.")
+            return nil
+        }
+        return SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
+    }()
     private var shortcutRecordingHandler: ((HaloShortcut) -> Void)?
+
+    private static var canStartSparkleUpdater: Bool {
+        Bundle.main.bundleURL.pathExtension == "app"
+            && Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil
+            && Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") != nil
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard singleInstanceGuard.acquire() else {
@@ -101,13 +113,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: L10n.t("menu.show"), action: #selector(showHalo), keyEquivalent: "h"))
         menu.addItem(NSMenuItem(title: L10n.t("menu.settings"), action: #selector(showSettings), keyEquivalent: ","))
-        let checkForUpdatesItem = NSMenuItem(
-            title: L10n.t("menu.checkForUpdates"),
-            action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
-            keyEquivalent: ""
-        )
-        checkForUpdatesItem.target = updaterController
-        checkForUpdatesItem.isEnabled = updaterController.updater.canCheckForUpdates
+        let checkForUpdatesItem: NSMenuItem
+        if let updaterController {
+            checkForUpdatesItem = NSMenuItem(
+                title: L10n.t("menu.checkForUpdates"),
+                action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
+                keyEquivalent: ""
+            )
+            checkForUpdatesItem.target = updaterController
+            checkForUpdatesItem.isEnabled = updaterController.updater.canCheckForUpdates
+        } else {
+            checkForUpdatesItem = NSMenuItem(title: L10n.t("menu.checkForUpdatesUnavailable"), action: nil, keyEquivalent: "")
+            checkForUpdatesItem.isEnabled = false
+        }
         menu.addItem(checkForUpdatesItem)
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: L10n.t("menu.quit"), action: #selector(quit), keyEquivalent: "q"))

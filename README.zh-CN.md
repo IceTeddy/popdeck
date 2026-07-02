@@ -41,6 +41,12 @@ swift run
 
 也可以在 Xcode 中将本文件夹作为 Swift package 打开，选择 `PopDeck` executable 后运行。
 
+Sparkle 自动更新检查需要通过打包后的 `.app` bundle 运行。开发时如果要测试检查更新，请使用：
+
+```bash
+./scripts/run-app.sh
+```
+
 ## 构建 App Bundle
 
 ```bash

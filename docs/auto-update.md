@@ -16,6 +16,21 @@ The private EdDSA key is stored in the macOS Keychain and must not be committed 
 
 The menu bar menu includes a `Check for Updates...` item wired to Sparkle's `SPUStandardUpdaterController`.
 
+Sparkle is only enabled when PopDeck is running from a packaged `.app` bundle with `SUFeedURL` and `SUPublicEDKey` in its `Info.plist`.
+
+Do not use `swift run` to test Sparkle. `swift run` starts a bare executable instead of the packaged app bundle, so Sparkle cannot reliably launch its updater services. Use:
+
+```bash
+./scripts/run-app.sh
+```
+
+or:
+
+```bash
+./scripts/build-app.sh debug
+open .build/PopDeck.app
+```
+
 The build script embeds `Sparkle.framework` into:
 
 ```text

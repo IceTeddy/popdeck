@@ -40,6 +40,12 @@ swift run
 
 In Xcode, open this folder as a Swift package, select the `PopDeck` executable, and run it.
 
+Sparkle automatic update checks require the packaged `.app` bundle. To test update checks during development, use:
+
+```bash
+./scripts/run-app.sh
+```
+
 ## Build The App Bundle
 
 ```bash
