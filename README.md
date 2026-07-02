@@ -1,5 +1,7 @@
 # PopDeck
 
+[English](README.md) | [中文](README.zh-CN.md)
+
 PopDeck is a native macOS pop-up launcher built with SwiftUI and AppKit. It lives in the menu bar and opens a cursor-centered launcher for frequently used apps, folders, and web links.
 
 The project is currently in early development. The first goal is a lightweight, open-source macOS utility with a clean local configuration model and a release path that can later support automatic updates.
