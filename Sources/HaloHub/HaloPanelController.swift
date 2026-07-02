@@ -6,9 +6,11 @@ final class HaloPanelController {
     static let shared = HaloPanelController()
 
     private var panel: NSPanel?
+    private var hostingView: NSHostingView<HaloPanelView>?
     private var localMouseMonitor: Any?
     private var globalMouseMonitor: Any?
     private var isHiding = false
+    private var presentationID = 0
 
     var isVisible: Bool {
         panel?.isVisible == true
@@ -30,13 +32,14 @@ final class HaloPanelController {
         }
 
         guard let panel else { return }
+        presentationID += 1
         let size = currentPanelSize
         let origin = NSPoint(
             x: screenPoint.x - size.width / 2,
             y: screenPoint.y - size.height / 2
         )
-        panel.setFrame(NSRect(origin: origin, size: size), display: true)
-        panel.contentView = makeContentView()
+        panel.setFrame(NSRect(origin: origin, size: size), display: false)
+        updateContentView()
         panel.orderFrontRegardless()
         NSApp.activate(ignoringOtherApps: false)
         startOutsideClickMonitoring()
@@ -69,19 +72,27 @@ final class HaloPanelController {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         panel.hidesOnDeactivate = false
         panel.isReleasedWhenClosed = false
-        panel.contentView = makeContentView()
+        updateContentView()
+        panel.contentView = hostingView
         return panel
     }
 
-    private func makeContentView() -> NSHostingView<HaloPanelView> {
-        NSHostingView(rootView: HaloPanelView(
+    private func updateContentView() {
+        let view = HaloPanelView(
             items: HaloMenuStore.shared.items,
             showItemNames: UserDefaults.standard.bool(forKey: AppPreferences.showItemNamesKey),
             iconSizePreference: HaloIconSizePreference.current,
             hubSizePreference: HaloHubSizePreference.current,
             appIconStyle: HaloAppIconStyle.current,
+            presentationID: presentationID,
             onClose: { [weak self] in self?.hide() }
-        ))
+        )
+
+        if let hostingView {
+            hostingView.rootView = view
+        } else {
+            hostingView = NSHostingView(rootView: view)
+        }
     }
 
     private func startOutsideClickMonitoring() {

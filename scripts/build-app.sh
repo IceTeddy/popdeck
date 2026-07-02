@@ -21,7 +21,6 @@ mkdir -p "$APP_DIR/Contents/Resources/en.lproj" "$APP_DIR/Contents/Resources/zh_
 
 cp "$EXECUTABLE" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp "$ICON_FILE" "$APP_DIR/Contents/Resources/AppIcon.icns"
-cp "$RESOURCE_DIR/AppIcon-1024.png" "$APP_DIR/Contents/Resources/AppIcon-1024.png"
 cp "$RESOURCE_DIR/MenuBarIcon-template.png" "$APP_DIR/Contents/Resources/MenuBarIcon-template.png"
 
 printf '"CFBundleDisplayName" = "PopDeck";\nCFBundleName = "PopDeck";\n' > "$APP_DIR/Contents/Resources/en.lproj/InfoPlist.strings"
@@ -33,7 +32,23 @@ if [[ -z "$SPARKLE_FRAMEWORK" ]]; then
     exit 1
 fi
 cp -R "$SPARKLE_FRAMEWORK" "$APP_DIR/Contents/Frameworks/"
+rm -rf "$APP_DIR/Contents/Frameworks/Sparkle.framework/Headers" \
+       "$APP_DIR/Contents/Frameworks/Sparkle.framework/PrivateHeaders" \
+       "$APP_DIR/Contents/Frameworks/Sparkle.framework/Versions/Current/Headers" \
+       "$APP_DIR/Contents/Frameworks/Sparkle.framework/Versions/Current/PrivateHeaders"
+
+SPARKLE_RESOURCES="$APP_DIR/Contents/Frameworks/Sparkle.framework/Versions/Current/Resources"
+if [[ -d "$SPARKLE_RESOURCES" ]]; then
+    find "$SPARKLE_RESOURCES" -maxdepth 1 -type d -name "*.lproj" \
+        ! -name "Base.lproj" \
+        ! -name "zh_CN.lproj" \
+        -exec rm -rf {} +
+fi
 install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP_DIR/Contents/MacOS/$APP_NAME" 2>/dev/null || true
+
+if [[ "$CONFIGURATION" == "release" ]]; then
+    strip -S -x "$APP_DIR/Contents/MacOS/$APP_NAME" 2>/dev/null || true
+fi
 
 cat > "$APP_DIR/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

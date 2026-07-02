@@ -5,6 +5,11 @@ import Foundation
 actor FaviconFetcher {
     static let shared = FaviconFetcher()
 
+    private static let iconPatterns: [NSRegularExpression] = [
+        #"<link[^>]+rel=["'][^"']*(?:apple-touch-icon|shortcut icon|icon)[^"']*["'][^>]+href=["']([^"']+)["']"#,
+        #"<link[^>]+href=["']([^"']+)["'][^>]+rel=["'][^"']*(?:apple-touch-icon|shortcut icon|icon)[^"']*["']"#
+    ].compactMap { try? NSRegularExpression(pattern: $0, options: [.caseInsensitive]) }
+
     private let session: URLSession
 
     private init() {
@@ -70,13 +75,7 @@ actor FaviconFetcher {
             return nil
         }
 
-        let patterns = [
-            #"<link[^>]+rel=["'][^"']*(?:apple-touch-icon|shortcut icon|icon)[^"']*["'][^>]+href=["']([^"']+)["']"#,
-            #"<link[^>]+href=["']([^"']+)["'][^>]+rel=["'][^"']*(?:apple-touch-icon|shortcut icon|icon)[^"']*["']"#
-        ]
-
-        for pattern in patterns {
-            guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else { continue }
+        for regex in Self.iconPatterns {
             let range = NSRange(html.startIndex..<html.endIndex, in: html)
             guard let match = regex.firstMatch(in: html, options: [], range: range),
                   let hrefRange = Range(match.range(at: 1), in: html) else {

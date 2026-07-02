@@ -68,13 +68,13 @@ Sparkle 自动更新检查需要通过打包后的 `.app` bundle 运行。开发
 发布产物会生成到 `dist/`：
 
 ```text
-dist/PopDeck-0.1.2.zip
-dist/PopDeck-0.1.2.zip.sha256
+dist/PopDeck-0.1.3.zip
+dist/PopDeck-0.1.3.zip.sha256
 ```
 
 ## 安装与首次打开
 
-1. 从 GitHub Releases 下载 `PopDeck-0.1.2.zip`。
+1. 从 GitHub Releases 下载 `PopDeck-0.1.3.zip`。
 2. 解压后，将 `PopDeck.app` 移动到“应用程序”文件夹。
 3. 打开 PopDeck。
 
@@ -89,8 +89,8 @@ Developer ID 签名和 Apple notarization 会在后续版本中加入。
 
 - App 名称：`PopDeck`
 - Bundle identifier：`com.tangfanx.popdeck`
-- 当前版本：`0.1.2`
-- 当前构建号：`3`
+- 当前版本：`0.1.3`
+- 当前构建号：`4`
 
 ## Roadmap
 

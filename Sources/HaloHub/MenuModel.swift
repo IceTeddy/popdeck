@@ -390,13 +390,14 @@ final class HaloMenuStore: ObservableObject {
               let decoded = try? JSONDecoder().decode([PersistedHaloMenuItem].self, from: data) else {
             persistedItems = Self.makeDefaultItems()
             save()
+            scheduleMissingFaviconRefresh()
             return
         }
         persistedItems = Array(decoded.prefix(maxItemCount))
         if decoded.count > maxItemCount {
             save()
         }
-        refreshMissingFavicons()
+        scheduleMissingFaviconRefresh()
     }
 
     private func save() {
@@ -408,6 +409,13 @@ final class HaloMenuStore: ObservableObject {
         for item in persistedItems where item.actionKind == .url && item.iconPath == nil {
             guard let url = URL(string: item.value) else { continue }
             fetchFavicon(for: item.id, url: url)
+        }
+    }
+
+    private func scheduleMissingFaviconRefresh() {
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(4))
+            refreshMissingFavicons()
         }
     }
 

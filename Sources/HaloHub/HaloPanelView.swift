@@ -6,6 +6,7 @@ struct HaloPanelView: View {
     let iconSizePreference: HaloIconSizePreference
     let hubSizePreference: HaloHubSizePreference
     let appIconStyle: HaloAppIconStyle
+    let presentationID: Int
     let onClose: () -> Void
 
     @State private var hoveredID: HaloMenuItem.ID?
@@ -67,8 +68,7 @@ struct HaloPanelView: View {
             }
             .scaleEffect(chromeAppeared ? 1 : 0.94)
             .opacity(chromeAppeared ? 1 : 0)
-            .blur(radius: chromeAppeared ? 0 : 1.2)
-            .animation(chromeAppeared ? .spring(response: 0.18, dampingFraction: 0.86) : .easeIn(duration: 0.13), value: chromeAppeared)
+            .animation(chromeAppeared ? .easeOut(duration: 0.16) : .easeIn(duration: 0.12), value: chromeAppeared)
 
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                 HaloMenuButton(
@@ -83,9 +83,9 @@ struct HaloPanelView: View {
                     }
                 )
                 .position(position(for: index, count: items.count))
-                .scaleEffect(appeared ? 1 : 0.65)
+                .scaleEffect(appeared ? 1 : 0.88)
                 .opacity(appeared ? 1 : 0)
-                .animation(.spring(response: 0.22, dampingFraction: 0.82), value: appeared)
+                .animation(.easeOut(duration: 0.16), value: appeared)
                 .allowsHitTesting(false)
             }
         }
@@ -100,6 +100,9 @@ struct HaloPanelView: View {
             }
         }
         .onAppear {
+            startEntranceAnimation()
+        }
+        .onChange(of: presentationID) { _, _ in
             startEntranceAnimation()
         }
         .onReceive(NotificationCenter.default.publisher(for: .haloPanelWillClose)) { _ in
@@ -400,7 +403,7 @@ struct HaloMenuIconView: View {
                 .scaleEffect(isHovered ? 1.04 : 1)
                 .animation(.spring(response: 0.16, dampingFraction: 0.68), value: isHovered)
         case .app(let bundleIdentifier):
-            if let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier) {
+            if let appURL = HaloIconCache.shared.appURL(for: bundleIdentifier) {
                 styledFileIcon(for: appURL)
             } else {
                 fallbackIcon
@@ -422,7 +425,7 @@ struct HaloMenuIconView: View {
     }
 
     private func baseFileIcon(for url: URL) -> some View {
-        Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
+        Image(nsImage: HaloIconCache.shared.fileIcon(for: url))
             .resizable()
             .interpolation(.high)
             .aspectRatio(contentMode: .fit)
@@ -451,7 +454,7 @@ struct HaloMenuIconView: View {
 
     @ViewBuilder
     private func cachedImageIcon(path: String) -> some View {
-        if let image = NSImage(contentsOfFile: path) {
+        if let image = HaloIconCache.shared.image(at: path) {
             switch appIconStyle {
             case .original:
                 cachedOriginalImageIcon(image)
@@ -484,6 +487,55 @@ struct HaloMenuIconView: View {
             .frame(width: size, height: size)
     }
 
+}
+
+@MainActor
+private final class HaloIconCache {
+    static let shared = HaloIconCache()
+
+    private var fileIcons: [String: NSImage] = [:]
+    private var images: [String: NSImage] = [:]
+    private var appURLs: [String: URL] = [:]
+
+    private init() {}
+
+    func fileIcon(for url: URL) -> NSImage {
+        let path = url.path
+        if let cached = fileIcons[path] {
+            return cached
+        }
+
+        let image = NSWorkspace.shared.icon(forFile: path)
+        image.size = NSSize(width: 128, height: 128)
+        fileIcons[path] = image
+        return image
+    }
+
+    func appURL(for bundleIdentifier: String) -> URL? {
+        if let cached = appURLs[bundleIdentifier] {
+            return cached
+        }
+
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleIdentifier) else {
+            return nil
+        }
+
+        appURLs[bundleIdentifier] = url
+        return url
+    }
+
+    func image(at path: String) -> NSImage? {
+        if let cached = images[path] {
+            return cached
+        }
+
+        guard let image = NSImage(contentsOfFile: path) else {
+            return nil
+        }
+
+        images[path] = image
+        return image
+    }
 }
 
 private extension NSImage {
