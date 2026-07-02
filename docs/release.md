@@ -7,7 +7,7 @@ This document describes the current manual release process for PopDeck. It is in
 - App name: `PopDeck`
 - Bundle identifier: `com.tangfanx.popdeck`
 - Version: `0.1.4`
-- Build: `4`
+- Build: `5`
 - Minimum macOS version: `14.0`
 
 ## Create Local Artifacts
@@ -23,14 +23,17 @@ This creates:
 ```text
 dist/PopDeck-0.1.4.zip
 dist/PopDeck-0.1.4.zip.sha256
+dist/PopDeck-0.1.4.dmg
+dist/PopDeck-0.1.4.dmg.sha256
 ```
 
 ## Publish On GitHub
 
 1. Create a GitHub Release tag such as `v0.1.4`.
-2. Upload `dist/PopDeck-0.1.4.zip`.
-3. Include the SHA256 value from `dist/PopDeck-0.1.4.zip.sha256` in the release notes.
-4. Clearly state that the build is currently unsigned.
+2. Upload `dist/PopDeck-0.1.4.dmg` for manual downloads.
+3. Upload `dist/PopDeck-0.1.4.zip` for Sparkle automatic updates.
+4. Include SHA256 values from the matching `.sha256` files in the release notes.
+5. Clearly state that the build is currently unsigned.
 
 ## Before Public Promotion
 

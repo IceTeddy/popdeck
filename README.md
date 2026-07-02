@@ -71,10 +71,23 @@ dist/PopDeck-0.1.4.zip
 dist/PopDeck-0.1.4.zip.sha256
 ```
 
+## Create A DMG
+
+```bash
+./scripts/package-dmg.sh
+```
+
+The DMG is intended for manual downloads from GitHub Releases:
+
+```text
+dist/PopDeck-0.1.4.dmg
+dist/PopDeck-0.1.4.dmg.sha256
+```
+
 ## Install And Open
 
-1. Download `PopDeck-0.1.4.zip` from GitHub Releases.
-2. Unzip it and move `PopDeck.app` to the Applications folder.
+1. Download `PopDeck-0.1.4.dmg` from GitHub Releases.
+2. Open the DMG and drag `PopDeck.app` to the Applications folder.
 3. Open PopDeck.
 
 Current release builds are unsigned. If macOS blocks the app, use one of these methods:

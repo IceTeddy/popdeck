@@ -72,10 +72,23 @@ dist/PopDeck-0.1.4.zip
 dist/PopDeck-0.1.4.zip.sha256
 ```
 
+## 创建 DMG
+
+```bash
+./scripts/package-dmg.sh
+```
+
+DMG 用于在 GitHub Releases 里提供给用户手动下载：
+
+```text
+dist/PopDeck-0.1.4.dmg
+dist/PopDeck-0.1.4.dmg.sha256
+```
+
 ## 安装与首次打开
 
-1. 从 GitHub Releases 下载 `PopDeck-0.1.4.zip`。
-2. 解压后，将 `PopDeck.app` 移动到“应用程序”文件夹。
+1. 从 GitHub Releases 下载 `PopDeck-0.1.4.dmg`。
+2. 打开 DMG 后，将 `PopDeck.app` 拖到“应用程序”文件夹。
 3. 打开 PopDeck。
 
 当前发布构建尚未签名。如果 macOS 阻止打开应用，可以使用下面任意一种方式：
