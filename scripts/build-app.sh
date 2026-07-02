@@ -16,11 +16,19 @@ ICON_FILE="$ROOT_DIR/Sources/HaloHub/Resources/AppIcon.icns"
 swift build -c "$CONFIGURATION"
 
 rm -rf "$APP_DIR"
-mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
+mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources" "$APP_DIR/Contents/Frameworks"
 
 cp "$EXECUTABLE" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp -R "$RESOURCE_BUNDLE" "$APP_DIR/PopDeck_PopDeck.bundle"
 cp "$ICON_FILE" "$APP_DIR/Contents/Resources/AppIcon.icns"
+
+SPARKLE_FRAMEWORK="$(find "$ROOT_DIR/.build/artifacts" -maxdepth 5 -path '*/Sparkle.framework' -type d 2>/dev/null | head -n 1 || true)"
+if [[ -z "$SPARKLE_FRAMEWORK" ]]; then
+    echo "Sparkle.framework was not found in .build/artifacts" >&2
+    exit 1
+fi
+cp -R "$SPARKLE_FRAMEWORK" "$APP_DIR/Contents/Frameworks/"
+install_name_tool -add_rpath "@executable_path/../Frameworks" "$APP_DIR/Contents/MacOS/$APP_NAME" 2>/dev/null || true
 
 cat > "$APP_DIR/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -51,6 +59,10 @@ cat > "$APP_DIR/Contents/Info.plist" <<PLIST
     <true/>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>SUFeedURL</key>
+    <string>https://raw.githubusercontent.com/IceTeddy/popdeck/main/appcast.xml</string>
+    <key>SUPublicEDKey</key>
+    <string>n3WgaOnCNdk+273b1SSVHk/EFfWuojekFYpUxkkvhKY=</string>
 </dict>
 </plist>
 PLIST

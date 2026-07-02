@@ -36,5 +36,5 @@ dist/PopDeck-0.1.0.zip.sha256
 
 - Add Developer ID signing.
 - Add Apple notarization.
-- Integrate Sparkle.
-- Decide whether appcast and release assets live on GitHub Releases, Cloudflare R2, or both.
+- Publish the first Sparkle-enabled update.
+- Decide whether appcast and release assets should stay on GitHub Releases or move to Cloudflare R2.

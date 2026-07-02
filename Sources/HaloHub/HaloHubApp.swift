@@ -1,4 +1,5 @@
 import AppKit
+import Sparkle
 import SwiftUI
 
 @main
@@ -17,6 +18,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private let hotKeyService = HotKeyService()
     private let singleInstanceGuard = SingleInstanceGuard()
+    private let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true,
+        updaterDelegate: nil,
+        userDriverDelegate: nil
+    )
     private var shortcutRecordingHandler: ((HaloShortcut) -> Void)?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -95,6 +101,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: L10n.t("menu.show"), action: #selector(showHalo), keyEquivalent: "h"))
         menu.addItem(NSMenuItem(title: L10n.t("menu.settings"), action: #selector(showSettings), keyEquivalent: ","))
+        let checkForUpdatesItem = NSMenuItem(
+            title: L10n.t("menu.checkForUpdates"),
+            action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
+            keyEquivalent: ""
+        )
+        checkForUpdatesItem.target = updaterController
+        checkForUpdatesItem.isEnabled = updaterController.updater.canCheckForUpdates
+        menu.addItem(checkForUpdatesItem)
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: L10n.t("menu.quit"), action: #selector(quit), keyEquivalent: "q"))
 

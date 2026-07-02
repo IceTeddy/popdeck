@@ -203,6 +203,7 @@ enum L10n {
         .zhHans: [
             "menu.show": "显示 PopDeck",
             "menu.settings": "设置",
+            "menu.checkForUpdates": "检查更新...",
             "menu.quit": "退出 PopDeck",
             "settings.window.title": "PopDeck 设置",
             "settings.subtitle": "弹出式启动器偏好设置",
@@ -263,6 +264,7 @@ enum L10n {
         .en: [
             "menu.show": "Show PopDeck",
             "menu.settings": "Settings",
+            "menu.checkForUpdates": "Check for Updates...",
             "menu.quit": "Quit PopDeck",
             "settings.window.title": "PopDeck Settings",
             "settings.subtitle": "Pop-up launcher preferences",
