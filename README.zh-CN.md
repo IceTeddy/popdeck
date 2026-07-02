@@ -6,6 +6,10 @@ PopDeck 是一款使用 SwiftUI 和 AppKit 构建的原生 macOS 弹出式启动
 
 项目目前处于早期开发阶段。当前目标是先做成一个轻量、开源、配置清晰的 macOS 工具，并为后续自动更新能力打好发布基础。
 
+## 预览
+
+<img src="docs/assets/popdeck-hub-demo.gif" width="720" alt="PopDeck 启动器演示">
+
 ## 功能
 
 - 无 Dock 图标的菜单栏应用。
