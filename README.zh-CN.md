@@ -59,26 +59,13 @@ Sparkle 自动更新检查需要通过打包后的 `.app` bundle 运行。开发
 .build/PopDeck.app
 ```
 
-## 创建发布 Zip
-
-```bash
-./scripts/package-release.sh
-```
-
-发布产物会生成到 `dist/`：
-
-```text
-dist/PopDeck-0.1.4.zip
-dist/PopDeck-0.1.4.zip.sha256
-```
-
 ## 创建 DMG
 
 ```bash
 ./scripts/package-dmg.sh
 ```
 
-DMG 用于在 GitHub Releases 里提供给用户手动下载：
+DMG 是 GitHub Release 里的公开下载文件，也同时作为 Sparkle 自动更新包：
 
 ```text
 dist/PopDeck-0.1.4.dmg

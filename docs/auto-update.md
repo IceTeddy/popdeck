@@ -57,26 +57,27 @@ codesign --force --deep --sign - .build/PopDeck.app
 
 This does not replace Developer ID signing, but it gives Sparkle's embedded XPC services and updater app a valid local signing boundary for development builds.
 
-## Signing An Update Archive
+## Generating The Appcast
 
-After creating a release zip:
+PopDeck uses the public DMG as the Sparkle update archive. Create the DMG first:
 
 ```bash
-./scripts/package-release.sh
-.build/artifacts/halohub/Sparkle/bin/sign_update --account com.tangfanx.popdeck dist/PopDeck-0.1.0.zip
+./scripts/package-dmg.sh
 ```
 
-The command prints `sparkle:edSignature` and `length` attributes for the appcast item.
+Then generate the signed appcast:
+
+```bash
+./scripts/generate-appcast.sh
+```
+
+`generate_appcast` writes the `sparkle:edSignature` and `length` attributes into `appcast.xml`.
 
 ## Next Release Workflow
 
-For the first real update test, publish a new version such as `0.1.1`:
-
 1. Bump `MARKETING_VERSION` and `BUILD_NUMBER` in `scripts/build-app.sh`.
-2. Build the release zip with `./scripts/package-release.sh`.
-3. Publish the zip on GitHub Releases.
-4. Generate or update `appcast.xml` with Sparkle's `generate_appcast`.
+2. Build the release DMG with `./scripts/package-dmg.sh`.
+3. Generate or update `appcast.xml` with `./scripts/generate-appcast.sh`.
+4. Publish the DMG on GitHub Releases.
 5. Commit and push the updated `appcast.xml`.
 6. Use PopDeck's `Check for Updates...` menu item from an older installed build.
-
-The current `appcast.xml` is intentionally minimal. It keeps the feed URL live while the first Sparkle-enabled build is being prepared.

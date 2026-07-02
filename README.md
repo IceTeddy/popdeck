@@ -58,26 +58,13 @@ The app bundle is created at:
 .build/PopDeck.app
 ```
 
-## Create A Release Zip
-
-```bash
-./scripts/package-release.sh
-```
-
-The release artifacts are written to `dist/`:
-
-```text
-dist/PopDeck-0.1.4.zip
-dist/PopDeck-0.1.4.zip.sha256
-```
-
 ## Create A DMG
 
 ```bash
 ./scripts/package-dmg.sh
 ```
 
-The DMG is intended for manual downloads from GitHub Releases:
+The DMG is the public GitHub Release asset and the Sparkle update archive:
 
 ```text
 dist/PopDeck-0.1.4.dmg

@@ -15,14 +15,12 @@ This document describes the current manual release process for PopDeck. It is in
 From the repository root:
 
 ```bash
-./scripts/package-release.sh
+./scripts/package-dmg.sh
 ```
 
 This creates:
 
 ```text
-dist/PopDeck-0.1.4.zip
-dist/PopDeck-0.1.4.zip.sha256
 dist/PopDeck-0.1.4.dmg
 dist/PopDeck-0.1.4.dmg.sha256
 ```
@@ -30,10 +28,11 @@ dist/PopDeck-0.1.4.dmg.sha256
 ## Publish On GitHub
 
 1. Create a GitHub Release tag such as `v0.1.4`.
-2. Upload `dist/PopDeck-0.1.4.dmg` for manual downloads.
-3. Upload `dist/PopDeck-0.1.4.zip` for Sparkle automatic updates.
-4. Include SHA256 values from the matching `.sha256` files in the release notes.
-5. Clearly state that the build is currently unsigned.
+2. Upload `dist/PopDeck-0.1.4.dmg`.
+3. Keep the release notes short and user-facing.
+4. Clearly state that the build is currently unsigned.
+
+Sparkle uses the same DMG through `appcast.xml`, so the release page should not upload a separate automatic-update zip.
 
 ## Before Public Promotion
 
