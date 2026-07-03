@@ -7,7 +7,7 @@ This document describes the current manual release process for PopDeck. It is in
 - App name: `PopDeck`
 - Bundle identifier: `com.tangfanx.popdeck`
 - Version: `0.1.5`
-- Build: `5`
+- Build: `6`
 - Minimum macOS version: `14.0`
 
 ## Create Local Artifacts

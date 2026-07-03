@@ -89,7 +89,7 @@ Developer ID signing and notarization are planned for a future release.
 - App name: `PopDeck`
 - Bundle identifier: `com.tangfanx.popdeck`
 - Current version: `0.1.5`
-- Current build: `5`
+- Current build: `6`
 
 ## Roadmap
 

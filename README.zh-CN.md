@@ -90,7 +90,7 @@ Developer ID 签名和 Apple notarization 会在后续版本中加入。
 - App 名称：`PopDeck`
 - Bundle identifier：`com.tangfanx.popdeck`
 - 当前版本：`0.1.5`
-- 当前构建号：`5`
+- 当前构建号：`6`
 
 ## Roadmap
 
