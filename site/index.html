@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PopDeck - macOS 快速启动器</title>
+  <meta name="description" content="PopDeck 是一款原生 macOS 菜单栏快速启动器，在鼠标附近呼出常用应用、文件夹、文件和网页链接。">
+  <link rel="icon" href="./assets/popdeck-logo.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="PopDeck 首页" data-i18n-aria-label="brand.home">
+      <img src="./assets/popdeck-logo.png" width="34" height="34" alt="">
+      <span>PopDeck</span>
+    </a>
+    <nav class="nav-links" aria-label="主要导航" data-i18n-aria-label="nav.label">
+      <a href="#features" data-i18n="nav.features">功能</a>
+      <button class="nav-help" type="button" data-help-open data-i18n="nav.help">帮助</button>
+      <a href="#wall" data-i18n="nav.wall">留言墙</a>
+      <a href="https://github.com/IceTeddy/popdeck">GitHub</a>
+    </nav>
+    <div class="header-actions">
+      <div class="language-menu-wrap" data-language-menu-wrap>
+        <button class="language-toggle" type="button" data-language-toggle aria-label="切换语言" title="切换语言" aria-expanded="false" aria-haspopup="true" data-i18n-aria-label="language.toggle" data-i18n-title="language.toggle">
+          <span class="language-icon" aria-hidden="true">
+            <span>文</span>
+            <span>A</span>
+          </span>
+        </button>
+        <div class="language-menu" data-language-menu role="menu" aria-label="语言选择" data-i18n-aria-label="language.menuLabel">
+          <button class="language-option" type="button" role="menuitemradio" aria-checked="true" data-language-option="zh">
+            <span class="language-flag" aria-hidden="true">🇨🇳</span>
+            <span data-i18n="language.zh">中文</span>
+          </button>
+          <button class="language-option" type="button" role="menuitemradio" aria-checked="false" data-language-option="en">
+            <span class="language-flag" aria-hidden="true">🇺🇸</span>
+            <span data-i18n="language.en">English</span>
+          </button>
+        </div>
+      </div>
+      <button class="header-sponsor" type="button" data-sponsor-open data-i18n="nav.sponsor">赞助</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="pill" data-i18n="hero.pill">Native macOS launcher</p>
+        <h1 id="hero-title">PopDeck</h1>
+        <p class="hero-subtitle" data-i18n="hero.subtitle">PopDeck 是一个轻量的 macOS 菜单栏启动器。按下快捷键，在鼠标位置打开应用、文件夹、文件和网页。</p>
+        <div class="hero-actions">
+          <a class="button primary" href="https://github.com/IceTeddy/popdeck/releases/download/v0.1.5/PopDeck-0.1.5.dmg">
+            <span data-i18n="hero.download">下载 PopDeck</span>
+            <span class="button-dot">↓</span>
+          </a>
+          <a class="button ghost icon-button" href="https://github.com/IceTeddy/popdeck" aria-label="GitHub">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 1.7C6.2 1.7 1.6 6.4 1.6 12.1c0 4.6 3 8.5 7.1 9.9.5.1.7-.2.7-.5v-1.8c-2.9.6-3.5-1.2-3.5-1.2-.5-1.2-1.2-1.5-1.2-1.5-.9-.7.1-.7.1-.7 1 .1 1.6 1.1 1.6 1.1.9 1.6 2.4 1.1 3 .9.1-.7.4-1.1.7-1.4-2.3-.3-4.7-1.2-4.7-5.1 0-1.1.4-2.1 1.1-2.8-.1-.3-.5-1.4.1-2.8 0 0 .9-.3 2.9 1.1.9-.2 1.8-.4 2.7-.4s1.8.1 2.7.4c2-1.4 2.9-1.1 2.9-1.1.6 1.4.2 2.5.1 2.8.7.8 1.1 1.7 1.1 2.8 0 4-2.4 4.9-4.7 5.1.4.3.8 1 .8 2v2.9c0 .3.2.6.8.5 4.1-1.4 7.1-5.3 7.1-9.9C22.4 6.4 17.8 1.7 12 1.7Z"/>
+            </svg>
+          </a>
+        </div>
+        <p class="version-line" data-i18n="hero.version">v0.1.5 · macOS 14+ · 开源 · 支持自动更新</p>
+      </div>
+
+      <div class="hero-mark" aria-hidden="true">
+        <div class="hub-placeholder">
+          <div class="placeholder-ring"></div>
+          <img class="hub-shot" src="./assets/popdeck-hub-cutout2.webp" width="772" height="772" alt="">
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="feature-section" aria-labelledby="features-title">
+      <div class="section-heading">
+        <p class="pill" data-i18n="features.pill">Features</p>
+        <h2 id="features-title" data-i18n="features.title">功能不多，但要顺手</h2>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <h3 data-i18n="features.pointer.title">鼠标位置呼出</h3>
+          <p data-i18n="features.pointer.body">Hub 会出现在指针位置，减少视线和鼠标来回移动，适合频繁切换应用和打开资料。</p>
+        </article>
+        <article class="feature-card">
+          <h3 data-i18n="features.drag.title">拖拽整理入口</h3>
+          <p data-i18n="features.drag.body">应用、文件夹、文件和 URL 都可以加入。拖动排序、移除和恢复默认布局都在设置里完成。</p>
+        </article>
+        <article class="feature-card">
+          <h3 data-i18n="features.menubar.title">安静常驻菜单栏</h3>
+          <p data-i18n="features.menubar.body">没有 Dock 图标干扰，支持开机启动。需要用时呼出，不需要时安静待在菜单栏。</p>
+        </article>
+        <article class="feature-card">
+          <h3 data-i18n="features.update.title">应用内自动更新</h3>
+          <p data-i18n="features.update.body">新版本发布后，PopDeck 可以直接检查、下载、替换并重启，不需要反复去 GitHub 找安装包。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="wall" class="wall-section" aria-labelledby="wall-title">
+      <div class="wall-heading">
+        <p class="pill" data-i18n="wall.pill">Wall</p>
+        <h2 id="wall-title" data-i18n="wall.title">留言墙</h2>
+        <p data-i18n="wall.body">留下你对 PopDeck 的想法，或者看看别人希望它接下来变成什么样。</p>
+        <form class="wall-composer" data-wall-form>
+          <textarea name="message" maxlength="120" rows="3" placeholder="写一句想法，例如：希望加入更多图标样式..." data-i18n-placeholder="wall.placeholder"></textarea>
+          <button type="submit" data-i18n="wall.submit">贴到墙上</button>
+        </form>
+      </div>
+      <div class="sticky-wall" aria-label="用户留言预览" data-i18n-aria-label="wall.previewLabel">
+        <article class="note yellow">
+          <p>这个小工具就应该这样，呼出来、点一下、继续工作。</p>
+          <span>早期用户</span>
+        </article>
+        <article class="note blue">
+          <p>比 Dock 和启动台更快，尤其适合经常开文件夹的人。</p>
+          <span>macOS user</span>
+        </article>
+        <article class="note green">
+          <p>自动更新已经跑通，下载体验也比 GitHub 页面清楚多了。</p>
+          <span>Tester</span>
+        </article>
+        <article class="note pink">
+          <p>希望后面能有更多图标样式和应用切换器能力。</p>
+          <span>Feedback</span>
+        </article>
+        <article class="note purple">
+          <p>菜单栏常驻、不打扰，这点很舒服。</p>
+          <span>PopDeck friend</span>
+        </article>
+        <article class="note yellow">
+          <p>如果后面能同步不同 Mac 的配置就更好了。</p>
+          <span>Idea</span>
+        </article>
+        <article class="note blue">
+          <p>快捷键呼出的位置很关键，现在这个方向是对的。</p>
+          <span>Power user</span>
+        </article>
+        <article class="note green">
+          <p>希望官网以后也能直接显示最新版本号和更新状态。</p>
+          <span>Launch note</span>
+        </article>
+        <article class="note pink">
+          <p>这个 Hub 如果能按不同场景切换配置，会很适合工作流。</p>
+          <span>Workflow</span>
+        </article>
+        <article class="note purple">
+          <p>喜欢这种不占 Dock 的小工具，安静但好用。</p>
+          <span>Menu bar fan</span>
+        </article>
+        <article class="note yellow">
+          <p>如果能支持快速搜索应用，就可以替代更多启动器了。</p>
+          <span>Search idea</span>
+        </article>
+        <article class="note blue">
+          <p>下载按钮直接给 DMG，这比 GitHub Release 清楚很多。</p>
+          <span>Website feedback</span>
+        </article>
+        <article class="note green">
+          <p>Hub 的透明质感很适合 macOS 桌面。</p>
+          <span>Design note</span>
+        </article>
+        <article class="note pink">
+          <p>希望以后可以导入导出配置，重装系统也不用重新摆。</p>
+          <span>Backup</span>
+        </article>
+        <article class="note purple">
+          <p>自动更新成功之后，信心一下就上来了。</p>
+          <span>Release test</span>
+        </article>
+        <article class="note yellow">
+          <p>一眼能看懂这个 App 是做什么的，官网方向对了。</p>
+          <span>Landing page</span>
+        </article>
+        <article class="note blue">
+          <p>可以考虑加一个“最近打开”区域。</p>
+          <span>Feature request</span>
+        </article>
+        <article class="note green">
+          <p>如果 Command Tab 那块要做，建议单独一个模式，不要混在 Hub 里。</p>
+          <span>Power user</span>
+        </article>
+        <article class="note pink">
+          <p>希望图标大小和 Hub 尺寸以后能更细地调。</p>
+          <span>Customization</span>
+        </article>
+        <article class="note purple">
+          <p>菜单栏图标很低调，这点挺符合工具属性。</p>
+          <span>Small detail</span>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>PopDeck v0.1.5</span>
+    <a href="https://github.com/IceTeddy/popdeck/releases/tag/v0.1.5">Release Notes</a>
+    <a href="https://github.com/IceTeddy/popdeck">GitHub</a>
+    <span>MIT License</span>
+  </footer>
+
+  <dialog class="help-dialog" data-help-dialog aria-labelledby="help-dialog-title">
+    <div class="dialog-panel">
+      <button class="dialog-close" type="button" data-help-close aria-label="关闭" data-i18n-aria-label="dialog.close">×</button>
+      <p class="pill">Help</p>
+      <h2 id="help-dialog-title" data-i18n="help.title">首次打开遇到拦截？</h2>
+      <p data-i18n="help.body1">当前版本尚未接入 Developer ID 签名。如果 macOS 提示无法验证开发者，可以按住 Control 点击 PopDeck.app，选择“打开”，并在确认弹窗中再次选择“打开”。</p>
+      <p data-i18n="help.body2">如果系统只显示“无法打开”或“已阻止使用”，请打开“系统设置” → “隐私与安全性”，在安全性提示中找到 PopDeck，然后点击“仍要打开”。这个按钮表示你确认要信任并打开刚下载的这个 App。</p>
+      <p data-i18n="help.body3">如果快捷键或鼠标呼出不可用，请在系统设置中为 PopDeck 授予“辅助功能”和“输入监听”权限。</p>
+      <a href="https://github.com/IceTeddy/popdeck/releases/tag/v0.1.5" data-i18n="help.releaseNotes">查看发布说明</a>
+    </div>
+  </dialog>
+
+  <dialog class="sponsor-dialog" data-sponsor-dialog aria-labelledby="sponsor-dialog-title">
+    <div class="sponsor-panel">
+      <button class="dialog-close" type="button" data-sponsor-close aria-label="关闭" data-i18n-aria-label="dialog.close">×</button>
+      <div class="sponsor-intro">
+        <p class="pill" data-i18n="sponsor.pill">Support PopDeck</p>
+        <h2 id="sponsor-dialog-title" data-i18n="sponsor.title">请我喝杯咖啡</h2>
+        <p data-i18n="sponsor.body">如果 PopDeck 节省了你一点点切换应用和找文件的时间，可以用你顺手的方式支持它继续打磨下去。</p>
+      </div>
+      <div class="sponsor-grid" aria-label="赞助收款方式" data-i18n-aria-label="sponsor.methodsLabel">
+        <article class="sponsor-card wechat">
+          <div class="qr-placeholder">
+            <img src="./wx.png" width="525" height="525" alt="微信赞助二维码" data-i18n-alt="sponsor.wechatAlt">
+          </div>
+          <h3 data-i18n="sponsor.wechat">微信</h3>
+          <p data-i18n="sponsor.wechatBody">使用微信扫码赞助</p>
+        </article>
+        <article class="sponsor-card alipay">
+          <div class="qr-placeholder">
+            <img src="./zfb.png" width="1157" height="1169" alt="支付宝赞助二维码" data-i18n-alt="sponsor.alipayAlt">
+          </div>
+          <h3 data-i18n="sponsor.alipay">支付宝</h3>
+          <p data-i18n="sponsor.alipayBody">使用支付宝扫码赞助</p>
+        </article>
+        <article class="sponsor-card paypal">
+          <div class="qr-placeholder">
+            <img src="./paypal.png" width="559" height="555" alt="PayPal 赞助二维码" data-i18n-alt="sponsor.paypalAlt">
+          </div>
+          <h3>PayPal</h3>
+          <p data-i18n="sponsor.paypalBody">使用 PayPal 扫码赞助</p>
+        </article>
+        <article class="sponsor-card usdt">
+          <div class="qr-placeholder">
+            <img src="./usdt.png" width="618" height="618" alt="USDT 赞助二维码" data-i18n-alt="sponsor.usdtAlt">
+          </div>
+          <h3>USDT</h3>
+          <p data-i18n="sponsor.usdtBody">使用 USDT 扫码赞助</p>
+        </article>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    const translations = {
+      zh: {
+        "meta.title": "PopDeck - macOS 快速启动器",
+        "meta.description": "PopDeck 是一款原生 macOS 菜单栏快速启动器，在鼠标附近呼出常用应用、文件夹、文件和网页链接。",
+        "brand.home": "PopDeck 首页",
+        "nav.label": "主要导航",
+        "nav.features": "功能",
+        "nav.help": "帮助",
+        "nav.wall": "留言墙",
+        "nav.sponsor": "赞助",
+        "language.toggle": "切换语言",
+        "language.menuLabel": "语言选择",
+        "language.code": "中",
+        "language.zh": "中文",
+        "language.en": "English",
+        "hero.pill": "Native macOS launcher",
+        "hero.subtitle": "PopDeck 是一个轻量的 macOS 菜单栏启动器。按下快捷键，在鼠标位置打开应用、文件夹、文件和网页。",
+        "hero.download": "下载 PopDeck",
+        "hero.version": "v0.1.5 · macOS 14+ · 开源 · 支持自动更新",
+        "features.pill": "Features",
+        "features.title": "功能不多，但要顺手",
+        "features.pointer.title": "鼠标位置呼出",
+        "features.pointer.body": "Hub 会出现在指针位置，减少视线和鼠标来回移动，适合频繁切换应用和打开资料。",
+        "features.drag.title": "拖拽整理入口",
+        "features.drag.body": "应用、文件夹、文件和 URL 都可以加入。拖动排序、移除和恢复默认布局都在设置里完成。",
+        "features.menubar.title": "安静常驻菜单栏",
+        "features.menubar.body": "没有 Dock 图标干扰，支持开机启动。需要用时呼出，不需要时安静待在菜单栏。",
+        "features.update.title": "应用内自动更新",
+        "features.update.body": "新版本发布后，PopDeck 可以直接检查、下载、替换并重启，不需要反复去 GitHub 找安装包。",
+        "wall.pill": "Wall",
+        "wall.title": "留言墙",
+        "wall.body": "留下你对 PopDeck 的想法，或者看看别人希望它接下来变成什么样。",
+        "wall.placeholder": "写一句想法，例如：希望加入更多图标样式...",
+        "wall.submit": "贴到墙上",
+        "wall.previewLabel": "用户留言预览",
+        "help.title": "首次打开遇到拦截？",
+        "help.body1": "当前版本尚未接入 Developer ID 签名。如果 macOS 提示无法验证开发者，可以按住 Control 点击 PopDeck.app，选择“打开”，并在确认弹窗中再次选择“打开”。",
+        "help.body2": "如果系统只显示“无法打开”或“已阻止使用”，请打开“系统设置” → “隐私与安全性”，在安全性提示中找到 PopDeck，然后点击“仍要打开”。这个按钮表示你确认要信任并打开刚下载的这个 App。",
+        "help.body3": "如果快捷键或鼠标呼出不可用，请在系统设置中为 PopDeck 授予“辅助功能”和“输入监听”权限。",
+        "help.releaseNotes": "查看发布说明",
+        "dialog.close": "关闭",
+        "sponsor.pill": "Support PopDeck",
+        "sponsor.title": "请我喝杯咖啡",
+        "sponsor.body": "如果 PopDeck 节省了你一点点切换应用和找文件的时间，可以用你顺手的方式支持它继续打磨下去。",
+        "sponsor.methodsLabel": "赞助收款方式",
+        "sponsor.wechat": "微信",
+        "sponsor.wechatBody": "使用微信扫码赞助",
+        "sponsor.wechatAlt": "微信赞助二维码",
+        "sponsor.alipay": "支付宝",
+        "sponsor.alipayBody": "使用支付宝扫码赞助",
+        "sponsor.alipayAlt": "支付宝赞助二维码",
+        "sponsor.paypalBody": "使用 PayPal 扫码赞助",
+        "sponsor.paypalAlt": "PayPal 赞助二维码",
+        "sponsor.usdtBody": "使用 USDT 扫码赞助",
+        "sponsor.usdtAlt": "USDT 赞助二维码",
+        "wall.justNow": "刚刚"
+      },
+      en: {
+        "meta.title": "PopDeck - macOS Quick Launcher",
+        "meta.description": "PopDeck is a native macOS menu bar launcher that opens apps, folders, files, and web links near your pointer.",
+        "brand.home": "PopDeck Home",
+        "nav.label": "Main navigation",
+        "nav.features": "Features",
+        "nav.help": "Help",
+        "nav.wall": "Wall",
+        "nav.sponsor": "Donate",
+        "language.toggle": "Switch language",
+        "language.menuLabel": "Language selection",
+        "language.code": "EN",
+        "language.zh": "中文",
+        "language.en": "English",
+        "hero.pill": "Native macOS launcher",
+        "hero.subtitle": "PopDeck is a lightweight macOS menu bar launcher. Press a shortcut to open apps, folders, files, and web pages right where your pointer is.",
+        "hero.download": "Download PopDeck",
+        "hero.version": "v0.1.5 · macOS 14+ · Open source · Auto updates",
+        "features.pill": "Features",
+        "features.title": "A small set of features, tuned to feel effortless",
+        "features.pointer.title": "Opens at your pointer",
+        "features.pointer.body": "The Hub appears where your pointer is, reducing eye and mouse travel when you switch apps or open reference files often.",
+        "features.drag.title": "Organize by dragging",
+        "features.drag.body": "Add apps, folders, files, and URLs. Reorder, remove, and restore the default layout from Settings.",
+        "features.menubar.title": "Quiet menu bar presence",
+        "features.menubar.body": "No Dock icon in the way, with launch-at-login support. It stays quiet until you need it.",
+        "features.update.title": "In-app updates",
+        "features.update.body": "When a new version ships, PopDeck can check, download, replace, and relaunch without sending you back to GitHub.",
+        "wall.pill": "Wall",
+        "wall.title": "Message Wall",
+        "wall.body": "Leave a thought about PopDeck, or see what others hope it becomes next.",
+        "wall.placeholder": "Write a thought, for example: I would love more icon styles...",
+        "wall.submit": "Post",
+        "wall.previewLabel": "User message preview",
+        "help.title": "Blocked on first launch?",
+        "help.body1": "This version is not signed with a Developer ID yet. If macOS says it cannot verify the developer, Control-click PopDeck.app, choose Open, then confirm Open again in the dialog.",
+        "help.body2": "If macOS only shows a blocked or cannot-open message, open System Settings, go to Privacy & Security, find the PopDeck warning, and click Open Anyway. That confirms you trust the app you just downloaded.",
+        "help.body3": "If shortcuts or mouse triggers do not work, grant PopDeck Accessibility and Input Monitoring permissions in System Settings.",
+        "help.releaseNotes": "View release notes",
+        "dialog.close": "Close",
+        "sponsor.pill": "Support PopDeck",
+        "sponsor.title": "Buy me a coffee",
+        "sponsor.body": "If PopDeck saves you a little time switching apps and finding files, you can support its continued polish in whichever way is easiest.",
+        "sponsor.methodsLabel": "Sponsor payment methods",
+        "sponsor.wechat": "WeChat",
+        "sponsor.wechatBody": "Scan with WeChat to sponsor",
+        "sponsor.wechatAlt": "WeChat sponsor QR code",
+        "sponsor.alipay": "Alipay",
+        "sponsor.alipayBody": "Scan with Alipay to sponsor",
+        "sponsor.alipayAlt": "Alipay sponsor QR code",
+        "sponsor.paypalBody": "Scan with PayPal to sponsor",
+        "sponsor.paypalAlt": "PayPal sponsor QR code",
+        "sponsor.usdtBody": "Scan with USDT to sponsor",
+        "sponsor.usdtAlt": "USDT sponsor QR code",
+        "wall.justNow": "Just now"
+      }
+    };
+
+    const wallNotes = {
+      zh: [
+        ["这个小工具就应该这样，呼出来、点一下、继续工作。", "早期用户"],
+        ["比 Dock 和启动台更快，尤其适合经常开文件夹的人。", "macOS user"],
+        ["自动更新已经跑通，下载体验也比 GitHub 页面清楚多了。", "Tester"],
+        ["希望后面能有更多图标样式和应用切换器能力。", "Feedback"],
+        ["菜单栏常驻、不打扰，这点很舒服。", "PopDeck friend"],
+        ["如果后面能同步不同 Mac 的配置就更好了。", "Idea"],
+        ["快捷键呼出的位置很关键，现在这个方向是对的。", "Power user"],
+        ["希望官网以后也能直接显示最新版本号和更新状态。", "Launch note"],
+        ["这个 Hub 如果能按不同场景切换配置，会很适合工作流。", "Workflow"],
+        ["喜欢这种不占 Dock 的小工具，安静但好用。", "Menu bar fan"],
+        ["如果能支持快速搜索应用，就可以替代更多启动器了。", "Search idea"],
+        ["下载按钮直接给 DMG，这比 GitHub Release 清楚很多。", "Website feedback"],
+        ["Hub 的透明质感很适合 macOS 桌面。", "Design note"],
+        ["希望以后可以导入导出配置，重装系统也不用重新摆。", "Backup"],
+        ["自动更新成功之后，信心一下就上来了。", "Release test"],
+        ["一眼能看懂这个 App 是做什么的，官网方向对了。", "Landing page"],
+        ["可以考虑加一个“最近打开”区域。", "Feature request"],
+        ["如果 Command Tab 那块要做，建议单独一个模式，不要混在 Hub 里。", "Power user"],
+        ["希望图标大小和 Hub 尺寸以后能更细地调。", "Customization"],
+        ["菜单栏图标很低调，这点挺符合工具属性。", "Small detail"]
+      ],
+      en: [
+        ["This little tool should feel exactly like this: open, click, keep working.", "Early user"],
+        ["Faster than the Dock and Launchpad, especially for people who open folders constantly.", "macOS user"],
+        ["Auto updates are working now, and downloading feels much clearer than a GitHub page.", "Tester"],
+        ["I hope future versions add more icon styles and app switcher features.", "Feedback"],
+        ["Living quietly in the menu bar without interrupting is really nice.", "PopDeck friend"],
+        ["Syncing settings across Macs later would make this even better.", "Idea"],
+        ["The shortcut opening position matters a lot, and this direction feels right.", "Power user"],
+        ["It would be great if the site could show the latest version and update status directly.", "Launch note"],
+        ["If this Hub could switch layouts by context, it would fit workflows beautifully.", "Workflow"],
+        ["I like small utilities that stay out of the Dock. Quiet but useful.", "Menu bar fan"],
+        ["Fast app search could let this replace even more launchers.", "Search idea"],
+        ["A direct DMG download is much clearer than sending people to GitHub Releases.", "Website feedback"],
+        ["The transparent Hub texture fits the macOS desktop nicely.", "Design note"],
+        ["Import and export would help after reinstalling a system.", "Backup"],
+        ["Once auto update worked, the app felt much more trustworthy.", "Release test"],
+        ["The site makes it obvious what the app does. Good direction.", "Landing page"],
+        ["A Recently Opened area might be worth considering.", "Feature request"],
+        ["If you build the Command-Tab idea, it should be its own mode, not mixed into the Hub.", "Power user"],
+        ["More granular icon size and Hub size controls would be useful later.", "Customization"],
+        ["The menu bar icon is subtle, which fits this kind of tool.", "Small detail"]
+      ]
+    };
+
+    const mockWallNoteElements = [...document.querySelectorAll(".sticky-wall .note")];
+
+    const getSavedLanguage = () => {
+      try {
+        return localStorage.getItem("popdeck-language");
+      } catch {
+        return null;
+      }
+    };
+
+    const saveLanguage = (language) => {
+      try {
+        localStorage.setItem("popdeck-language", language);
+      } catch {
+      }
+    };
+
+    const detectLanguage = () => {
+      const saved = getSavedLanguage();
+      if (saved === "zh" || saved === "en") return saved;
+      const browserLanguage = (navigator.language || navigator.userLanguage || "").toLowerCase();
+      return browserLanguage.startsWith("zh") ? "zh" : "en";
+    };
+
+    let currentLanguage = detectLanguage();
+
+    const t = (key) => translations[currentLanguage]?.[key] ?? translations.zh[key] ?? key;
+
+    const applyLanguage = (language, shouldSave = false) => {
+      currentLanguage = language === "zh" ? "zh" : "en";
+      if (shouldSave) saveLanguage(currentLanguage);
+      document.documentElement.lang = currentLanguage === "zh" ? "zh-CN" : "en";
+      document.title = t("meta.title");
+      document.querySelector('meta[name="description"]')?.setAttribute("content", t("meta.description"));
+      document.querySelectorAll("[data-i18n]").forEach((node) => {
+        node.textContent = t(node.dataset.i18n);
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+        node.setAttribute("placeholder", t(node.dataset.i18nPlaceholder));
+      });
+      document.querySelectorAll("[data-i18n-aria-label]").forEach((node) => {
+        node.setAttribute("aria-label", t(node.dataset.i18nAriaLabel));
+      });
+      document.querySelectorAll("[data-i18n-title]").forEach((node) => {
+        node.setAttribute("title", t(node.dataset.i18nTitle));
+      });
+      document.querySelectorAll("[data-i18n-alt]").forEach((node) => {
+        node.setAttribute("alt", t(node.dataset.i18nAlt));
+      });
+      document.querySelectorAll("[data-language-option]").forEach((node) => {
+        const isSelected = node.dataset.languageOption === currentLanguage;
+        node.classList.toggle("is-active", isSelected);
+        node.setAttribute("aria-checked", String(isSelected));
+      });
+      mockWallNoteElements.forEach((note, index) => {
+        const translated = wallNotes[currentLanguage][index];
+        if (!translated) return;
+        note.querySelector("p").textContent = translated[0];
+        note.querySelector("span").textContent = translated[1];
+      });
+    };
+
+    applyLanguage(currentLanguage);
+
+    const languageWrap = document.querySelector("[data-language-menu-wrap]");
+    const languageToggle = document.querySelector("[data-language-toggle]");
+    const languageMenu = document.querySelector("[data-language-menu]");
+    const setLanguageMenuOpen = (isOpen) => {
+      languageWrap?.classList.toggle("is-open", isOpen);
+      languageToggle?.setAttribute("aria-expanded", String(isOpen));
+    };
+
+    languageToggle?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setLanguageMenuOpen(!languageWrap?.classList.contains("is-open"));
+    });
+
+    document.querySelectorAll("[data-language-option]").forEach((option) => {
+      option.addEventListener("click", () => {
+        applyLanguage(option.dataset.languageOption, true);
+        setLanguageMenuOpen(false);
+      });
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!languageWrap?.contains(event.target)) {
+        setLanguageMenuOpen(false);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setLanguageMenuOpen(false);
+      }
+    });
+
+    const helpDialog = document.querySelector("[data-help-dialog]");
+    document.querySelector("[data-help-open]")?.addEventListener("click", () => {
+      if (helpDialog?.showModal) {
+        helpDialog.showModal();
+      }
+    });
+    document.querySelector("[data-help-close]")?.addEventListener("click", () => {
+      helpDialog?.close();
+    });
+    helpDialog?.addEventListener("click", (event) => {
+      if (event.target === helpDialog) {
+        helpDialog.close();
+      }
+    });
+
+    const sponsorDialog = document.querySelector("[data-sponsor-dialog]");
+    document.querySelector("[data-sponsor-open]")?.addEventListener("click", () => {
+      if (sponsorDialog?.showModal) {
+        sponsorDialog.showModal();
+      }
+    });
+    document.querySelector("[data-sponsor-close]")?.addEventListener("click", () => {
+      sponsorDialog?.close();
+    });
+    sponsorDialog?.addEventListener("click", (event) => {
+      if (event.target === sponsorDialog) {
+        sponsorDialog.close();
+      }
+    });
+
+    const wall = document.querySelector(".sticky-wall");
+    wall?.addEventListener("click", (event) => {
+      const note = event.target.closest(".note");
+      if (!note) return;
+      wall.querySelectorAll(".note.is-active").forEach((item) => {
+        item.classList.remove("is-active");
+      });
+      note.classList.add("is-active");
+    });
+
+    document.querySelector("[data-wall-form]")?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const textarea = form.querySelector("textarea");
+      const message = textarea.value.trim();
+      if (!message) return;
+      const note = document.createElement("article");
+      const colors = ["yellow", "blue", "green", "pink", "purple"];
+      note.className = `note ${colors[Math.floor(Math.random() * colors.length)]}`;
+      note.innerHTML = `<p></p><span>Just now</span>`;
+      note.querySelector("p").textContent = message;
+      note.querySelector("span").textContent = t("wall.justNow");
+      wall?.prepend(note);
+      textarea.value = "";
+    });
+  </script>
+  <!-- Cloudflare Web Analytics -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "7d2ce7bd8e084503bf7cf48badeec966"}'></script>
+  <!-- End Cloudflare Web Analytics -->
+</body>
+</html>
