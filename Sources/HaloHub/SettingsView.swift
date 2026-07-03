@@ -316,6 +316,8 @@ struct SettingsView: View {
                                 .strokeBorder(.white.opacity(0.14), lineWidth: 1)
                         )
 
+                        websiteFeedbackCard
+
                         Text(appVersionText)
                             .font(.system(size: 11, weight: .medium, design: .rounded))
                             .foregroundStyle(.white.opacity(0.42))
@@ -430,6 +432,74 @@ struct SettingsView: View {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .strokeBorder((permissionStatus.allRequiredGranted ? Color.green.opacity(0.22) : Color.orange.opacity(0.24)), lineWidth: 1)
         )
+    }
+
+    private var websiteFeedbackCard: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "globe")
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(.cyan.opacity(0.95))
+                .frame(width: 34)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(L10n.t("settings.websiteFeedback.title"))
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.92))
+                Text(L10n.t("settings.websiteFeedback.subtitle"))
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.56))
+            }
+
+            Spacer()
+
+            HStack(spacing: 8) {
+                websiteLinkButton(
+                    title: L10n.t("settings.website.button"),
+                    systemImage: "safari",
+                    urlString: "https://popdeck.pages.dev/"
+                )
+
+                websiteLinkButton(
+                    title: L10n.t("settings.feedback.button"),
+                    systemImage: "text.bubble.fill",
+                    urlString: "https://popdeck.pages.dev/#wall"
+                )
+            }
+        }
+        .padding(15)
+        .frame(maxWidth: .infinity)
+        .background(.white.opacity(0.10), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(.white.opacity(0.14), lineWidth: 1)
+        )
+    }
+
+    private func websiteLinkButton(title: String, systemImage: String, urlString: String) -> some View {
+        Button {
+            openWebsite(urlString)
+        } label: {
+            Label(title, systemImage: systemImage)
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .lineLimit(1)
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(.white.opacity(0.12), in: Capsule())
+        .overlay(
+            Capsule()
+                .strokeBorder(.white.opacity(0.16), lineWidth: 1)
+        )
+        .foregroundStyle(.white.opacity(0.92))
+    }
+
+    private func openWebsite(_ urlString: String) {
+        guard let url = URL(string: urlString) else {
+            NSSound.beep()
+            return
+        }
+        NSWorkspace.shared.open(url)
     }
 
     private func permissionRow(for kind: SystemPermissionKind) -> some View {

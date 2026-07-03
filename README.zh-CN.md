@@ -68,13 +68,13 @@ Sparkle 自动更新检查需要通过打包后的 `.app` bundle 运行。开发
 DMG 是 GitHub Release 里的公开下载文件，也同时作为 Sparkle 自动更新包：
 
 ```text
-dist/PopDeck-0.1.5.dmg
-dist/PopDeck-0.1.5.dmg.sha256
+dist/PopDeck-0.1.6.dmg
+dist/PopDeck-0.1.6.dmg.sha256
 ```
 
 ## 安装与首次打开
 
-1. 从 GitHub Releases 下载 `PopDeck-0.1.5.dmg`。
+1. 从 GitHub Releases 下载 `PopDeck-0.1.6.dmg`。
 2. 打开 DMG 后，将 `PopDeck.app` 拖到“应用程序”文件夹。
 3. 打开 PopDeck。
 
@@ -89,8 +89,8 @@ Developer ID 签名和 Apple notarization 会在后续版本中加入。
 
 - App 名称：`PopDeck`
 - Bundle identifier：`com.tangfanx.popdeck`
-- 当前版本：`0.1.5`
-- 当前构建号：`6`
+- 当前版本：`0.1.6`
+- 当前构建号：`7`
 
 ## Roadmap
 

@@ -67,13 +67,13 @@ The app bundle is created at:
 The DMG is the public GitHub Release asset and the Sparkle update archive:
 
 ```text
-dist/PopDeck-0.1.5.dmg
-dist/PopDeck-0.1.5.dmg.sha256
+dist/PopDeck-0.1.6.dmg
+dist/PopDeck-0.1.6.dmg.sha256
 ```
 
 ## Install And Open
 
-1. Download `PopDeck-0.1.5.dmg` from GitHub Releases.
+1. Download `PopDeck-0.1.6.dmg` from GitHub Releases.
 2. Open the DMG and drag `PopDeck.app` to the Applications folder.
 3. Open PopDeck.
 
@@ -88,8 +88,8 @@ Developer ID signing and notarization are planned for a future release.
 
 - App name: `PopDeck`
 - Bundle identifier: `com.tangfanx.popdeck`
-- Current version: `0.1.5`
-- Current build: `6`
+- Current version: `0.1.6`
+- Current build: `7`
 
 ## Roadmap
 
