@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP_NAME="PopDeck"
-VERSION="${POPDECK_VERSION:-0.1.4}"
+VERSION="${POPDECK_VERSION:-0.1.5}"
 ACCOUNT="${SPARKLE_ACCOUNT:-com.tangfanx.popdeck}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="$ROOT_DIR/dist"

@@ -315,6 +315,12 @@ struct SettingsView: View {
                             RoundedRectangle(cornerRadius: 18, style: .continuous)
                                 .strokeBorder(.white.opacity(0.14), lineWidth: 1)
                         )
+
+                        Text(appVersionText)
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.42))
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.top, 4)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 28)
@@ -486,6 +492,13 @@ struct SettingsView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             refreshPermissionStatus()
         }
+    }
+
+    private var appVersionText: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "0.0.0"
+        let build = info?["CFBundleVersion"] as? String ?? "0"
+        return "PopDeck v\(version) (\(build))"
     }
 
     private enum SettingsAlert {
