@@ -5,6 +5,9 @@
 .wrangler/
 .env.local
 docs/deployment-runbook.md
+site/
+functions/
+wrangler.toml
 .DS_Store
 DerivedData/
 dist/
