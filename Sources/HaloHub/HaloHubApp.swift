@@ -10,6 +10,14 @@ struct PopDeckApp: App {
         Settings {
             SettingsView()
         }
+        .commands {
+            CommandGroup(after: .appSettings) {
+                Button(L10n.t("menu.show")) {
+                    HaloPanelController.shared.show(at: NSEvent.mouseLocation)
+                }
+                .keyboardShortcut("h", modifiers: [.command, .option])
+            }
+        }
     }
 }
 
@@ -65,6 +73,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
         setupApplicationIcon()
         setupStatusItem()
+        // Start Sparkle's scheduler at launch, honoring its stored consent and
+        // automatic-check preferences instead of waiting for a menu click.
+        if let updater = localizedUpdaterController()?.updater,
+           updater.automaticallyChecksForUpdates {
+            // Sparkle permits a launch-time background check immediately after
+            // startup. Keep automatic-check consent and skipped versions intact.
+            updater.checkForUpdatesInBackground()
+        }
         hotKeyService.onInvoke = { [weak self] in
             Task { @MainActor in
                 self?.toggleHalo()
@@ -83,6 +99,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             object: nil
         )
         presentPermissionNoticeIfNeeded()
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains(where: { $0 == "--verify-glass" || $0 == "--verify-glass-inactive" }), let screen = NSScreen.main {
+            DispatchQueue.main.async {
+                SettingsWindowController.shared.window?.orderOut(nil)
+                HaloPanelController.shared.show(at: NSPoint(x: screen.visibleFrame.midX, y: screen.visibleFrame.midY))
+            }
+        }
+        #endif
     }
 
     func applicationWillTerminate(_ notification: Notification) {

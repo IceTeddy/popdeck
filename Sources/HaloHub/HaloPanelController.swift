@@ -10,6 +10,7 @@ final class HaloPanelController {
     private var localMouseMonitor: Any?
     private var globalMouseMonitor: Any?
     private var isHiding = false
+    private var isOrderingOut = false
     private var presentationID = 0
     private var hideRequestID = 0
 
@@ -23,9 +24,8 @@ final class HaloPanelController {
         guard !ShortcutRecordingState.shouldSuppressInvocation else { return }
         guard !ShortcutRecordingState.isRecording else { return }
 
-        if isHiding {
-            panel?.orderOut(nil)
-            isHiding = false
+        if isHiding, let panel {
+            orderOutPanel(panel)
         }
 
         hideRequestID += 1
@@ -42,35 +42,58 @@ final class HaloPanelController {
         )
         panel.setFrame(NSRect(origin: origin, size: size), display: false)
         updateContentView()
-        panel.orderFrontRegardless()
         NSApp.activate(ignoringOtherApps: false)
+        if panel.canBecomeKey {
+            panel.makeKeyAndOrderFront(nil)
+        } else {
+            panel.orderFrontRegardless()
+        }
         startOutsideClickMonitoring()
         publishHoverLocation(onScreen: NSEvent.mouseLocation)
     }
 
-    func hide() {
-        guard let panel, panel.isVisible, !isHiding else { return }
+    func hide(immediately: Bool = false) {
+        guard let panel, panel.isVisible, !isOrderingOut else { return }
+        // Focus loss can interrupt an exit already waiting for its animation.
+        guard immediately || !isHiding else { return }
         isHiding = true
         hideRequestID += 1
         let requestID = hideRequestID
         stopOutsideClickMonitoring()
+        if immediately {
+            orderOutPanel(panel)
+            return
+        }
         NotificationCenter.default.post(name: .haloPanelWillClose, object: nil)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) { [weak self] in
             guard let self else { return }
             guard self.hideRequestID == requestID else { return }
-            panel.orderOut(nil)
-            self.isHiding = false
+            self.orderOutPanel(panel)
         }
     }
 
+    private func orderOutPanel(_ panel: NSPanel) {
+        // orderOut itself can resign key; avoid re-entering the focus-loss handler.
+        guard !isOrderingOut else { return }
+        isOrderingOut = true
+        panel.orderOut(nil)
+        isOrderingOut = false
+        isHiding = false
+    }
+
     private func makePanel() -> NSPanel {
-        let panel = NSPanel(
+        let panel = HaloFloatingPanel(
             contentRect: NSRect(origin: .zero, size: currentPanelSize),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
+        panel.onWillResignKey = { [weak self] in
+            // Hide before native glass switches to its inactive, heavily tinted state.
+            self?.hide(immediately: true)
+        }
+        panel.title = "PopDeck Panel"
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = false
@@ -112,7 +135,7 @@ final class HaloPanelController {
                 return event
             }
             if !self.isPointInsideHubCircle(NSEvent.mouseLocation) {
-                self.hide()
+                self.hide(immediately: true)
             }
             return event
         }
@@ -121,7 +144,7 @@ final class HaloPanelController {
             Task { @MainActor in
                 guard let self else { return }
                 if !self.isPointInsideHubCircle(NSEvent.mouseLocation) {
-                    self.hide()
+                    self.hide(immediately: true)
                 }
             }
         }
@@ -169,4 +192,27 @@ final class HaloPanelController {
 extension Notification.Name {
     static let haloPanelWillClose = Notification.Name("HaloPanelWillClose")
     static let haloPanelMouseMoved = Notification.Name("HaloPanelMouseMoved")
+}
+
+/// A borderless NSPanel is not key-capable by default. Native glass distinguishes
+/// active and inactive windows, so a visible launcher must be able to become key.
+private final class HaloFloatingPanel: NSPanel {
+    var onWillResignKey: (() -> Void)?
+
+    override func resignKey() {
+        onWillResignKey?()
+        super.resignKey()
+    }
+
+    override var canBecomeKey: Bool {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--verify-glass-inactive") { return false }
+        #endif
+        return true
+    }
+    override var canBecomeMain: Bool { false }
+
+    override func cancelOperation(_ sender: Any?) {
+        HaloPanelController.shared.hide()
+    }
 }

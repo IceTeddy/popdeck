@@ -1,13 +1,13 @@
 # Release Notes
 
-This document describes the current manual release process for PopDeck. It is intentionally simple so the project can publish early builds before Sparkle, signing, and notarization are fully wired in.
+This document describes the current manual release process for PopDeck. Sparkle update signing is configured; Developer ID signing and notarization are not yet enabled. Publish the DMG before making its appcast item live.
 
 ## Current Release Identity
 
 - App name: `PopDeck`
 - Bundle identifier: `com.tangfanx.popdeck`
-- Version: `0.1.6`
-- Build: `7`
+- Version: `0.1.7`
+- Build: `8`
 - Minimum macOS version: `14.0`
 
 ## Create Local Artifacts
@@ -21,14 +21,14 @@ From the repository root:
 This creates:
 
 ```text
-dist/PopDeck-0.1.6.dmg
-dist/PopDeck-0.1.6.dmg.sha256
+dist/PopDeck-0.1.7.dmg
+dist/PopDeck-0.1.7.dmg.sha256
 ```
 
 ## Publish On GitHub
 
-1. Create a GitHub Release tag such as `v0.1.6`.
-2. Upload `dist/PopDeck-0.1.6.dmg`.
+1. Create a GitHub Release tag such as `v0.1.7`.
+2. Upload `dist/PopDeck-0.1.7.dmg`.
 3. Keep the release notes short and user-facing.
 4. Clearly state that the build is currently unsigned.
 

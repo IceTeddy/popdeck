@@ -21,76 +21,83 @@ struct HaloPanelView: View {
     private var center: CGFloat { panelSize / 2 }
 
     var body: some View {
-        ZStack {
-            Group {
-                HaloGlassBackground(size: outerSize)
+        HaloGlassSurface(size: outerSize) {
+            ZStack {
+                Group {
+                    ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                        let sector = RingSector(
+                            startAngle: sectorAngles(for: index, count: items.count).start,
+                            endAngle: sectorAngles(for: index, count: items.count).end,
+                            innerRadius: innerSectorRadius,
+                            outerRadius: outerSectorRadius,
+                            angularInset: 0
+                        )
+
+                        sector
+                            .fill(Color.white.opacity(hoveredID == item.id ? 0.10 : 0))
+                            .overlay {
+                                sector
+                                    .stroke(Color.white.opacity(hoveredID == item.id ? 0.16 : 0), lineWidth: 1)
+                            }
+                            .frame(width: panelSize, height: panelSize)
+                            .contentShape(sector)
+                            .gesture(selectionGesture())
+                            .animation(.easeOut(duration: 0.12), value: hoveredID)
+                    }
+
+                    ForEach(items.indices, id: \.self) { index in
+                        SectorDivider(
+                            angle: sectorAngles(for: index, count: items.count).start,
+                            innerRadius: innerSectorRadius,
+                            outerRadius: outerSectorRadius
+                        )
+                        .stroke(
+                            LinearGradient(
+                                colors: [.white.opacity(0), .white.opacity(0.12), .white.opacity(0)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 0.7
+                        )
+                        .frame(width: panelSize, height: panelSize)
+                    }
+
+                    HaloCenterGlassBackground(size: hubSizePreference.centerSize)
+                        .onTapGesture(perform: onClose)
+                }
+                .scaleEffect(chromeAppeared ? 1 : 0.94)
+                .opacity(chromeAppeared ? 1 : 0)
+                .animation(chromeAppeared ? .easeOut(duration: 0.16) : .easeIn(duration: 0.12), value: chromeAppeared)
 
                 ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                    let sector = RingSector(
-                        startAngle: sectorAngles(for: index, count: items.count).start,
-                        endAngle: sectorAngles(for: index, count: items.count).end,
-                        innerRadius: innerSectorRadius,
-                        outerRadius: outerSectorRadius,
-                        angularInset: 0
-                    )
-
-                    sector
-                        .fill(Color.white.opacity(hoveredID == item.id ? 0.10 : 0))
-                        .overlay {
-                            sector
-                                .stroke(Color.white.opacity(hoveredID == item.id ? 0.16 : 0), lineWidth: 1)
+                    HaloMenuButton(
+                        item: item,
+                        isHovered: hoveredID == item.id,
+                        showItemName: showItemNames,
+                        iconSizePreference: iconSizePreference,
+                        appIconStyle: appIconStyle,
+                        action: {
+                            item.action.perform()
+                            onClose()
                         }
-                        .frame(width: panelSize, height: panelSize)
-                        .contentShape(sector)
-                        .gesture(selectionGesture())
-                        .animation(.easeOut(duration: 0.12), value: hoveredID)
-                }
-
-                ForEach(items.indices, id: \.self) { index in
-                    SectorDivider(
-                        angle: sectorAngles(for: index, count: items.count).start,
-                        innerRadius: innerSectorRadius,
-                        outerRadius: outerSectorRadius
                     )
-                    .stroke(
-                        LinearGradient(
-                            colors: [.white.opacity(0), .white.opacity(0.12), .white.opacity(0)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        ),
-                        lineWidth: 0.7
-                    )
-                    .frame(width: panelSize, height: panelSize)
+                    .position(position(for: index, count: items.count))
+                    .scaleEffect(appeared ? 1 : 0.88)
+                    .opacity(appeared ? 1 : 0)
+                    .animation(.easeOut(duration: 0.16), value: appeared)
+                    .allowsHitTesting(false)
                 }
-
-                HaloCenterGlassBackground(size: hubSizePreference.centerSize)
-                    .onTapGesture(perform: onClose)
             }
-            .scaleEffect(chromeAppeared ? 1 : 0.94)
-            .opacity(chromeAppeared ? 1 : 0)
-            .animation(chromeAppeared ? .easeOut(duration: 0.16) : .easeIn(duration: 0.12), value: chromeAppeared)
-
-            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                HaloMenuButton(
-                    item: item,
-                    isHovered: hoveredID == item.id,
-                    showItemName: showItemNames,
-                    iconSizePreference: iconSizePreference,
-                    appIconStyle: appIconStyle,
-                    action: {
-                        item.action.perform()
-                        onClose()
-                    }
-                )
-                .position(position(for: index, count: items.count))
-                .scaleEffect(appeared ? 1 : 0.88)
-                .opacity(appeared ? 1 : 0)
-                .animation(.easeOut(duration: 0.16), value: appeared)
-                .allowsHitTesting(false)
-            }
+            .frame(width: panelSize, height: panelSize)
         }
         .frame(width: panelSize, height: panelSize)
-        .background(Color.clear)
+        .background {
+            #if DEBUG
+            if ProcessInfo.processInfo.arguments.contains(where: { $0 == "--verify-glass" || $0 == "--verify-glass-inactive" }) {
+                GlassVerificationBackdrop()
+            }
+            #endif
+        }
         .onContinuousHover { phase in
             switch phase {
             case .active(let location):
@@ -203,62 +210,27 @@ struct HaloPanelView: View {
     }
 }
 
-struct HaloGlassBackground: View {
+/// Give AppKit the actual controls as content, rather than putting an empty
+/// effect behind a separately composited hosting view.
+struct HaloGlassSurface<Content: View>: View {
+    @AppStorage(AppPreferences.glassStrengthKey) private var glassStrength = 0.0
     let size: CGFloat
+    @ViewBuilder var content: Content
 
     var body: some View {
         if #available(macOS 26.0, *) {
-            Circle()
-                .fill(Color.white.opacity(0.001))
-                .glassEffect(.regular.tint(Color.white.opacity(0.055)).interactive(), in: Circle())
+            NativeCircleGlass(size: size, strength: glassStrength, content: content)
                 .frame(width: size, height: size)
-                .overlay(
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.12),
-                                    Color.white.opacity(0.025),
-                                    Color.white.opacity(0.00)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .blendMode(.screen)
-                )
-                .overlay(
-                    Circle()
-                        .strokeBorder(Color.white.opacity(0.10), lineWidth: 9)
-                        .blur(radius: 10)
-                        .padding(7)
-                        .blendMode(.screen)
-                )
-                .overlay(
-                    Circle()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.58),
-                                    Color.white.opacity(0.12),
-                                    Color.white.opacity(0.34)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                )
-                .shadow(color: .black.opacity(0.20), radius: 22, x: 0, y: 14)
-                .shadow(color: .white.opacity(0.12), radius: 10, x: -5, y: -6)
+
         } else {
-            VisualEffectBlur(material: .hudWindow, blendingMode: .behindWindow)
-                .clipShape(Circle())
-                .frame(width: size, height: size)
-                .overlay(
-                    Circle()
-                        .strokeBorder(.white.opacity(0.20), lineWidth: 1)
-                )
+            content.background {
+                VisualEffectBlur(material: .hudWindow, blendingMode: .behindWindow)
+                    .clipShape(Circle())
+                    .frame(width: size, height: size)
+                    .overlay {
+                        Circle().strokeBorder(.white.opacity(0.20), lineWidth: 1)
+                    }
+            }
         }
     }
 }
@@ -268,42 +240,14 @@ struct HaloCenterGlassBackground: View {
 
     var body: some View {
         if #available(macOS 26.0, *) {
+            // The center shares the outer glass instead of stacking glass on glass.
             Circle()
-                .fill(Color.white.opacity(0.001))
-                .glassEffect(.regular.tint(Color.white.opacity(0.075)).interactive(), in: Circle())
+                .fill(.clear)
+                .overlay {
+                    Circle().strokeBorder(.primary.opacity(0.12), lineWidth: 1)
+                }
                 .frame(width: size, height: size)
-                .overlay(
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [
-                                    Color.white.opacity(0.12),
-                                    Color.white.opacity(0.02),
-                                    Color.white.opacity(0.00)
-                                ],
-                                center: .topLeading,
-                                startRadius: 0,
-                                endRadius: size * 0.85
-                            )
-                        )
-                        .blendMode(.screen)
-                )
-                .overlay(
-                    Circle()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.48),
-                                    Color.white.opacity(0.10),
-                                    Color.white.opacity(0.24)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                )
-                .shadow(color: .black.opacity(0.16), radius: 15, x: 0, y: 8)
+                .contentShape(Circle())
         } else {
             VisualEffectBlur(material: .popover, blendingMode: .behindWindow)
                 .clipShape(Circle())
@@ -605,3 +549,34 @@ private extension NSImage {
         }
     }
 }
+
+#if DEBUG
+/// Diagnostic content behind the real panel surface, never used in release builds.
+/// A window-only screenshot otherwise omits the desktop sampled by the compositor.
+private struct GlassVerificationBackdrop: View {
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack {
+                Color(white: 0.92)
+                HStack(spacing: 0) {
+                    Color(white: 0.08)
+                    Color(white: 0.92)
+                }
+                ForEach(0..<12) { index in
+                    Rectangle()
+                        .fill(index.isMultiple(of: 2) ? Color.blue : Color.orange)
+                        .frame(width: 2)
+                        .position(x: CGFloat(index + 1) * proxy.size.width / 13, y: proxy.size.height / 2)
+                }
+                ForEach(0..<12) { index in
+                    Rectangle()
+                        .fill(Color.red)
+                        .frame(height: 2)
+                        .position(x: proxy.size.width / 2, y: CGFloat(index + 1) * proxy.size.height / 13)
+                }
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+#endif

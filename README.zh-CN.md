@@ -23,20 +23,28 @@ PopDeck 是一款使用 SwiftUI 和 AppKit 构建的原生 macOS 弹出式启动
 - 跟随鼠标位置呼出的启动面板。
 - 支持拖动、排序和移除启动项。
 - 内置常用应用和文件夹默认项。
-- 支持添加自定义应用、文件夹、文件和 URL。
+- 支持添加自定义应用、文件夹、文件、URL 和 Shell 命令。
+- macOS 26 及以上使用原生 Liquid Glass 圆形面板，旧系统使用毛玻璃。
+- 设置中可拖动“玻璃浓度”滑块，实时调节原生着色强度并自动保存。该选项不直接调节模糊半径，也不更改系统外观设置。
 - 支持一键还原默认启动器布局。
 - 可选开机自动启动。
 - 支持中文和英文界面文本。
 
+## 命令快捷方式
+
+在设置中点击“添加命令”，填写可选名称及 Shell 命令，再点击“添加”。点击面板中的命令图标即可后台运行。命令通过 `/bin/zsh -lc` 执行，初始工作目录为当前用户主目录，并读取 zsh 的登录配置；可在命令中使用 `cd` 切换目录，或使用绝对路径。支持多行、管道、引号及重定向。执行失败时显示退出状态及错误输出。
+
+命令不会打开终端，标准输入和标准输出接到空设备；需要保存输出时请自行重定向到文件。需要交互输入的命令应通过 Terminal 等应用运行。命令项与其他启动项共享 8 项上限，可拖动排序或拖到中心删除。
+
 ## 环境要求
 
 - macOS 14 或更高版本。
-- Xcode 16 或更高版本，或对应的 Swift 工具链。
+- Xcode 26 或更高版本（包含 Liquid Glass SDK），或对应的 Swift 工具链。
 
 ## 从源码运行
 
 ```bash
-swift run
+./scripts/run-app.sh
 ```
 
 也可以在 Xcode 中将本文件夹作为 Swift package 打开，选择 `PopDeck` executable 后运行。
@@ -68,13 +76,13 @@ Sparkle 自动更新检查需要通过打包后的 `.app` bundle 运行。开发
 DMG 是 GitHub Release 里的公开下载文件，也同时作为 Sparkle 自动更新包：
 
 ```text
-dist/PopDeck-0.1.6.dmg
-dist/PopDeck-0.1.6.dmg.sha256
+dist/PopDeck-0.1.7.dmg
+dist/PopDeck-0.1.7.dmg.sha256
 ```
 
 ## 安装与首次打开
 
-1. 从 GitHub Releases 下载 `PopDeck-0.1.6.dmg`。
+1. 从 GitHub Releases 下载 `PopDeck-0.1.7.dmg`。
 2. 打开 DMG 后，将 `PopDeck.app` 拖到“应用程序”文件夹。
 3. 打开 PopDeck。
 
@@ -89,8 +97,8 @@ Developer ID 签名和 Apple notarization 会在后续版本中加入。
 
 - App 名称：`PopDeck`
 - Bundle identifier：`com.tangfanx.popdeck`
-- 当前版本：`0.1.6`
-- 当前构建号：`7`
+- 当前版本：`0.1.7`
+- 当前构建号：`8`
 
 ## Roadmap
 

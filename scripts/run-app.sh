@@ -6,4 +6,5 @@ CONFIGURATION="${1:-debug}"
 APP_DIR="$ROOT_DIR/.build/PopDeck.app"
 
 "$ROOT_DIR/scripts/build-app.sh" "$CONFIGURATION"
-open "$APP_DIR"
+pkill -x PopDeck >/dev/null 2>&1 || true
+open -n "$APP_DIR"

@@ -9,7 +9,9 @@ struct SettingsView: View {
     @AppStorage(AppPreferences.hubSizeKey) private var hubSizeRawValue = HaloHubSizePreference.small.rawValue
     @AppStorage(AppPreferences.appIconStyleKey) private var appIconStyleRawValue = HaloAppIconStyle.original.rawValue
     @ObservedObject private var menuStore = HaloMenuStore.shared
+    @AppStorage(AppPreferences.glassStrengthKey) private var glassStrength = 0.0
     @State private var isAddingURL = false
+    @State private var isAddingCommand = false
     @State private var activeAlert: SettingsAlert?
     @State private var isRecordingShortcut = false
     @State private var shortcutRecordingPreview: String?
@@ -86,21 +88,16 @@ struct SettingsView: View {
                         .padding(.top, 2)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
 
-                        Button {
-                            isAddingURL = true
-                        } label: {
-                            Label(L10n.t("settings.addURL.button"), systemImage: "link.badge.plus")
-                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        VStack(alignment: .trailing, spacing: 8) {
+                            Button { isAddingURL = true } label: {
+                                Label(L10n.t("settings.addURL.button"), systemImage: "link.badge.plus")
+                            }
+                            Button { isAddingCommand = true } label: {
+                                Label(L10n.t("settings.addCommand.button"), systemImage: "terminal.fill")
+                            }
                         }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(.white.opacity(0.12), in: Capsule())
-                        .overlay(
-                            Capsule()
-                                .strokeBorder(.white.opacity(0.16), lineWidth: 1)
-                        )
-                        .foregroundStyle(.white.opacity(0.92))
+                        .buttonStyle(.bordered)
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
                         .padding(.top, 2)
 
                         Button {
@@ -120,6 +117,10 @@ struct SettingsView: View {
                         .foregroundStyle(.white.opacity(0.94))
                         .padding(.bottom, 2)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                    }
+
+                    if #available(macOS 26.0, *) {
+                        GlassStrengthControl(strength: $glassStrength)
                     }
 
                     Text(L10n.t("settings.hubHint"))
@@ -368,6 +369,11 @@ struct SettingsView: View {
                 menuStore.addURL(title: title, urlString: urlString)
             }
         }
+        .sheet(isPresented: $isAddingCommand) {
+            AddCommandSheet { title, command in
+                menuStore.addCommand(title: title, command: command)
+            }
+        }
         .onChange(of: languageRawValue) { _, _ in
             SettingsWindowController.shared.refreshTitle()
         }
@@ -380,6 +386,7 @@ struct SettingsView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: HaloMenuStore.itemLimitReachedNotification)) { _ in
             isAddingURL = false
+            isAddingCommand = false
             DispatchQueue.main.async {
                 activeAlert = .itemLimitReached
             }
@@ -998,104 +1005,108 @@ private struct SettingsHubPreview: View {
     private var center: CGFloat { panelSize / 2 }
 
     var body: some View {
-        ZStack {
-            HaloGlassBackground(size: outerSize)
-                .overlay {
-                    Circle()
-                        .strokeBorder(Color.mint.opacity(isAppDropTarget ? 0.72 : 0), lineWidth: 2)
-                        .frame(width: outerSize, height: outerSize)
+        HaloGlassSurface(size: outerSize) {
+            ZStack {
+                Circle()
+                    .fill(.clear)
+                    .frame(width: outerSize, height: outerSize)
+                    .overlay {
+                        Circle()
+                            .strokeBorder(Color.mint.opacity(isAppDropTarget ? 0.72 : 0), lineWidth: 2)
+                    }
+
+                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                    let sector = RingSector(
+                        startAngle: sectorAngles(for: index, count: items.count).start,
+                        endAngle: sectorAngles(for: index, count: items.count).end,
+                        innerRadius: innerSectorRadius,
+                        outerRadius: outerSectorRadius,
+                        angularInset: 0
+                    )
+
+                    sector
+                        .fill(Color.white.opacity(reorderTargetIndex == index ? 0.10 : 0))
+                        .overlay {
+                            sector
+                                .stroke(Color.mint.opacity(reorderTargetIndex == index ? 0.22 : 0), lineWidth: 1)
+                        }
+                        .frame(width: panelSize, height: panelSize)
+                        .contentShape(sector)
+                        .gesture(reorderGesture(for: item, at: index))
                 }
 
-            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                let sector = RingSector(
-                    startAngle: sectorAngles(for: index, count: items.count).start,
-                    endAngle: sectorAngles(for: index, count: items.count).end,
-                    innerRadius: innerSectorRadius,
-                    outerRadius: outerSectorRadius,
-                    angularInset: 0
-                )
-
-                sector
-                    .fill(Color.white.opacity(reorderTargetIndex == index ? 0.10 : 0))
-                    .overlay {
-                        sector
-                            .stroke(Color.mint.opacity(reorderTargetIndex == index ? 0.22 : 0), lineWidth: 1)
-                    }
+                ForEach(items.indices, id: \.self) { index in
+                    SectorDivider(
+                        angle: sectorAngles(for: index, count: items.count).start,
+                        innerRadius: innerSectorRadius,
+                        outerRadius: outerSectorRadius
+                    )
+                    .stroke(
+                        LinearGradient(
+                            colors: [.white.opacity(0), .white.opacity(0.12), .white.opacity(0)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ),
+                        lineWidth: 0.7
+                    )
                     .frame(width: panelSize, height: panelSize)
-                    .contentShape(sector)
-                    .gesture(reorderGesture(for: item, at: index))
-            }
+                }
 
-            ForEach(items.indices, id: \.self) { index in
-                SectorDivider(
-                    angle: sectorAngles(for: index, count: items.count).start,
-                    innerRadius: innerSectorRadius,
-                    outerRadius: outerSectorRadius
-                )
-                .stroke(
-                    LinearGradient(
-                        colors: [.white.opacity(0), .white.opacity(0.12), .white.opacity(0)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
-                    lineWidth: 0.7
-                )
-                .frame(width: panelSize, height: panelSize)
-            }
-
-            HaloCenterGlassBackground(size: hubSizePreference.centerSize)
-                .overlay(
-                    Circle()
-                        .fill(isDeleteTarget ? .red.opacity(0.24) : .clear)
-                )
-                .overlay {
-                    if draggingItemID != nil {
-                        VStack(spacing: 7) {
-                            Image(systemName: "trash.fill")
-                                .font(.system(size: 29, weight: .semibold))
-                            Text("Remove")
-                                .font(.system(size: 17, weight: .semibold, design: .rounded))
-                            Text("Drop here")
-                                .font(.system(size: 12, weight: .medium, design: .rounded))
-                                .foregroundStyle(Color.white.opacity(0.78))
+                HaloCenterGlassBackground(size: hubSizePreference.centerSize)
+                    .overlay(
+                        Circle()
+                            .fill(isDeleteTarget ? .red.opacity(0.24) : .clear)
+                    )
+                    .overlay {
+                        if draggingItemID != nil {
+                            VStack(spacing: 7) {
+                                Image(systemName: "trash.fill")
+                                    .font(.system(size: 29, weight: .semibold))
+                                Text("Remove")
+                                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                Text("Drop here")
+                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                    .foregroundStyle(Color.white.opacity(0.78))
+                            }
                         }
                     }
-                }
 
-            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                VStack(spacing: showItemNames ? 2 : 0) {
-                    HaloMenuIconView(
-                        icon: item.icon,
-                        isHovered: false,
-                        appIconStyle: appIconStyle,
-                        size: iconSizePreference.normalIconSize,
-                        symbolSize: iconSizePreference.normalSymbolSize
-                    )
-                    .frame(width: iconSizePreference.hoveredIconSize, height: iconSizePreference.hoveredIconSize)
-                    if showItemNames {
-                        Text(item.title)
-                            .font(.system(size: 13, weight: .semibold, design: .rounded))
-                            .foregroundStyle(Color.white.opacity(0.90))
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                            .minimumScaleFactor(0.78)
-                            .frame(width: 68)
-                            .clipped()
-                            .help(item.title)
+                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+                    VStack(spacing: showItemNames ? 2 : 0) {
+                        HaloMenuIconView(
+                            icon: item.icon,
+                            isHovered: false,
+                            appIconStyle: appIconStyle,
+                            size: iconSizePreference.normalIconSize,
+                            symbolSize: iconSizePreference.normalSymbolSize
+                        )
+                        .frame(width: iconSizePreference.hoveredIconSize, height: iconSizePreference.hoveredIconSize)
+                        if showItemNames {
+                            Text(item.title)
+                                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                .foregroundStyle(Color.white.opacity(0.90))
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .minimumScaleFactor(0.78)
+                                .frame(width: 68)
+                                .clipped()
+                                .help(item.title)
+                        }
                     }
+                    .frame(width: 102, height: 102)
+                    .position(position(for: index, count: items.count))
+                    .offset(draggingItemID == item.id ? dragTranslation : .zero)
+                    .scaleEffect(draggingItemID == item.id ? 1.08 : 1)
+                    .opacity(draggingItemID == nil || draggingItemID == item.id ? 1 : 0.58)
+                    .zIndex(draggingItemID == item.id ? 10 : 1)
+                    .gesture(reorderGesture(for: item, at: index))
+                    .animation(.spring(response: 0.18, dampingFraction: 0.78), value: draggingItemID)
                 }
-                .frame(width: 102, height: 102)
-                .position(position(for: index, count: items.count))
-                .offset(draggingItemID == item.id ? dragTranslation : .zero)
-                .scaleEffect(draggingItemID == item.id ? 1.08 : 1)
-                .opacity(draggingItemID == nil || draggingItemID == item.id ? 1 : 0.58)
-                .zIndex(draggingItemID == item.id ? 10 : 1)
-                .gesture(reorderGesture(for: item, at: index))
-                .animation(.spring(response: 0.18, dampingFraction: 0.78), value: draggingItemID)
             }
+            .frame(width: panelSize, height: panelSize)
+            .coordinateSpace(name: "hubPreview")
         }
         .frame(width: panelSize, height: panelSize)
-        .coordinateSpace(name: "hubPreview")
         .onDrop(of: [UTType.fileURL.identifier], isTargeted: $isAppDropTarget) { providers in
             loadApplicationDrop(from: providers)
         }

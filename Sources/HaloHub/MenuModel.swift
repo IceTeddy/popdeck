@@ -37,6 +37,7 @@ enum HaloMenuItemKind: Hashable {
     case file
     case folder
     case url
+    case command
 
     init(action: HaloAction) {
         switch action {
@@ -46,6 +47,8 @@ enum HaloMenuItemKind: Hashable {
             self = .file
         case .folder:
             self = .folder
+        case .command:
+            self = .command
         case .url:
             self = .url
         }
@@ -59,6 +62,8 @@ enum HaloMenuItemKind: Hashable {
             return "doc.fill"
         case .folder:
             return "folder.fill"
+        case .command:
+            return "terminal.fill"
         case .url:
             return "link"
         }
@@ -90,10 +95,13 @@ enum HaloAction: Hashable {
     case url(URL?)
     case folder(URL?)
     case file(URL?)
+    case command(String)
 
     @MainActor
     func perform() {
         switch self {
+        case .command(let command):
+            CommandRunner.perform(command)
         case .app(let bundleIdentifier):
             openApp(bundleIdentifier: bundleIdentifier)
         case .url(let url), .folder(let url), .file(let url):
@@ -121,6 +129,7 @@ struct PersistedHaloMenuItem: Codable, Identifiable, Equatable {
         case url
         case folder
         case file
+        case command
     }
 
     let id: UUID
@@ -190,6 +199,9 @@ struct PersistedHaloMenuItem: Codable, Identifiable, Equatable {
         case .folder:
             action = .folder(URL(fileURLWithPath: value))
             icon = subtitleKey == nil ? .file(path: value) : .symbol(symbolName)
+        case .command:
+            action = .command(value)
+            icon = .symbol(symbolName)
         case .file:
             action = .file(URL(fileURLWithPath: value))
             icon = .file(path: value)
@@ -262,6 +274,28 @@ final class HaloMenuStore: ObservableObject {
         ))
         save()
         fetchFavicon(for: itemID, url: url)
+        return true
+    }
+
+    @discardableResult
+    func addCommand(title: String, command: String) -> Bool {
+        guard canAddItem else { return false }
+        guard CommandRunner.isValid(command),
+              !persistedItems.contains(where: { $0.actionKind == .command && $0.value == command }) else {
+            NSSound.beep()
+            return false
+        }
+        let name = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        persistedItems.append(PersistedHaloMenuItem(
+            id: UUID(),
+            title: name.isEmpty ? String(command.trimmingCharacters(in: .whitespacesAndNewlines).prefix(40)) : name,
+            subtitleKey: "item.command.subtitle",
+            subtitle: "Command",
+            symbolName: "terminal.fill",
+            actionKind: .command,
+            value: command
+        ))
+        save()
         return true
     }
 

@@ -21,6 +21,7 @@ let package = Package(
                 .process("Resources")
             ]
         ),
+        .testTarget(name: "PopDeckTests", dependencies: ["PopDeck"]),
         .binaryTarget(
             name: "Sparkle",
             url: "https://github.com/sparkle-project/Sparkle/releases/download/2.9.3/Sparkle-for-Swift-Package-Manager.zip",

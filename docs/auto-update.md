@@ -14,7 +14,7 @@ The private EdDSA key is stored in the macOS Keychain and must not be committed 
 
 ## App Integration
 
-The menu bar menu includes a `Check for Updates...` item wired to Sparkle's `SPUStandardUpdaterController`.
+The updater is initialized during application launch so automatic update scheduling does not depend on opening the menu bar menu. When the saved automatic-check preference is enabled, a background check is requested immediately after updater startup. Sparkle retains control of consent, skipped versions, and subsequent scheduling. The menu bar menu also includes a `Check for Updates...` item wired to the same `SPUStandardUpdaterController`.
 
 Sparkle is only enabled when PopDeck is running from a packaged `.app` bundle with `SUFeedURL` and `SUPublicEDKey` in its `Info.plist`.
 

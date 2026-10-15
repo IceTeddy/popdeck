@@ -22,20 +22,28 @@ The project is currently in early development. The first goal is a lightweight, 
 - Global launcher shortcut, configurable from Settings.
 - Cursor-centered launcher panel with draggable items.
 - Default actions for common apps and folders.
-- Add custom apps, folders, files, and URLs.
+- Add custom apps, folders, files, URLs, and shell commands.
 - Restore the default launcher layout with one click.
 - Optional launch at login.
 - Chinese and English interface strings.
 
+## Command Shortcuts
+
+Choose **Add Command** in settings, enter an optional name and shell source, then add it to the panel. Commands run in the background using `/bin/zsh -lc`, starting in your home directory and loading zsh login configuration. Use `cd` or absolute paths as needed. Multiline commands, quoting, pipes and redirection are supported. Failures show the exit status and stderr.
+
+No terminal opens; stdin and stdout use the null device. Redirect output to a file when needed. Use Terminal for interactive commands. Commands share the eight-item limit and can be reordered or removed in the preview.
+
+The circular panel uses native Liquid Glass on macOS 26 and later, with the existing frosted material on older systems. The Glass intensity slider adjusts native tint strength, updates immediately, and saves automatically. It does not control the blur radius or change system appearance settings.
+
 ## Requirements
 
 - macOS 14 or later.
-- Xcode 16 or later, or the matching Swift toolchain.
+- Xcode 26 or later (with the Liquid Glass SDK), or the matching Swift toolchain.
 
 ## Run From Source
 
 ```bash
-swift run
+./scripts/run-app.sh
 ```
 
 In Xcode, open this folder as a Swift package, select the `PopDeck` executable, and run it.
@@ -67,13 +75,13 @@ The app bundle is created at:
 The DMG is the public GitHub Release asset and the Sparkle update archive:
 
 ```text
-dist/PopDeck-0.1.6.dmg
-dist/PopDeck-0.1.6.dmg.sha256
+dist/PopDeck-0.1.7.dmg
+dist/PopDeck-0.1.7.dmg.sha256
 ```
 
 ## Install And Open
 
-1. Download `PopDeck-0.1.6.dmg` from GitHub Releases.
+1. Download `PopDeck-0.1.7.dmg` from GitHub Releases.
 2. Open the DMG and drag `PopDeck.app` to the Applications folder.
 3. Open PopDeck.
 
@@ -88,8 +96,8 @@ Developer ID signing and notarization are planned for a future release.
 
 - App name: `PopDeck`
 - Bundle identifier: `com.tangfanx.popdeck`
-- Current version: `0.1.6`
-- Current build: `7`
+- Current version: `0.1.7`
+- Current build: `8`
 
 ## Roadmap
 
