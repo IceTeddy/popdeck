@@ -16,7 +16,10 @@ rm -rf "$DIST_DIR"
 mkdir -p "$DIST_DIR"
 
 ditto -c -k --sequesterRsrc --keepParent "$APP_DIR" "$ZIP_PATH"
-shasum -a 256 "$ZIP_PATH" > "$SHA_PATH"
+(
+    cd "$DIST_DIR"
+    shasum -a 256 "$APP_NAME-$VERSION.zip"
+) > "$SHA_PATH"
 
 echo "Created $ZIP_PATH"
 echo "Created $SHA_PATH"

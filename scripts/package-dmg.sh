@@ -26,7 +26,10 @@ hdiutil create \
     -format UDZO \
     "$DMG_PATH"
 
-shasum -a 256 "$DMG_PATH" > "$SHA_PATH"
+(
+    cd "$DIST_DIR"
+    shasum -a 256 "$APP_NAME-$VERSION.dmg"
+) > "$SHA_PATH"
 
 echo "Created $DMG_PATH"
 echo "Created $SHA_PATH"
