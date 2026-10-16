@@ -9,7 +9,7 @@ struct SettingsView: View {
     @AppStorage(AppPreferences.hubSizeKey) private var hubSizeRawValue = HaloHubSizePreference.small.rawValue
     @AppStorage(AppPreferences.appIconStyleKey) private var appIconStyleRawValue = HaloAppIconStyle.original.rawValue
     @ObservedObject private var menuStore = HaloMenuStore.shared
-    @AppStorage(AppPreferences.glassStrengthKey) private var glassStrength = 0.0
+    @AppStorage(AppPreferences.glassStyleKey) private var glassStyle = HaloGlassStyle.regular.rawValue
     @State private var isAddingURL = false
     @State private var isAddingCommand = false
     @State private var activeAlert: SettingsAlert?
@@ -120,7 +120,7 @@ struct SettingsView: View {
                     }
 
                     if #available(macOS 26.0, *) {
-                        GlassStrengthControl(strength: $glassStrength)
+                        GlassStyleControl(style: $glassStyle)
                     }
 
                     Text(L10n.t("settings.hubHint"))

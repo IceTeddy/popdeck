@@ -1,6 +1,6 @@
 # Native Liquid Glass verification
 
-Verified on macOS 27.0.1 with the macOS 27 SDK, 2026-10-15.
+Verified on macOS 27.0.1 with the macOS 27 SDK, 2026-10-15 and 2026-10-16.
 
 ## Findings
 
@@ -8,7 +8,7 @@ The public `NSGlassEffectView` API renders real edge refraction in PopDeck's act
 
 The important defect was the panel's window state. The previous borderless `NSPanel` could not become key and was shown using `orderFrontRegardless()`. In a controlled comparison, that state rendered the native clear material as a heavily frosted surface. A key-capable panel shown with `makeKeyAndOrderFront(_:)` rendered the same material with visible transparency and edge lensing.
 
-The production fix uses a key-capable `HaloFloatingPanel`, retains the nonactivating-panel style, and puts the SwiftUI controls in `NSGlassEffectView.contentView`. Escape closes the panel. The system draws the optical boundary; the custom outer gradient stroke has been removed. The optional Glass intensity slider only sets the native `tintColor` alpha (0 to 0.75, using a black tint to retain contrast with the launcher’s white symbols); it does not add an overlay, modify the content opacity, or interpolate blur radii. Older systems retain the existing `NSVisualEffectView` fallback.
+The production fix uses a key-capable `HaloFloatingPanel`, retains the nonactivating-panel style, and puts the SwiftUI controls in `NSGlassEffectView.contentView`. Escape closes the panel. The system draws the optical boundary; the custom outer gradient stroke has been removed. Version 0.1.8 removes the former intensity slider: it changed tint, not frosting. The app now exposes the documented regular and clear variants, defaults to regular, and leaves `tintColor` nil in both. Existing `glassStrength` values are left untouched and ignored; they are not treated as blur values. Labels and symbols use the semantic primary foreground. Older systems retain the existing `NSVisualEffectView` fallback.
 
 ## Actual-panel comparison
 
@@ -25,21 +25,21 @@ The accessibility state identified the tested window as `PopDeck Panel` and iden
 
 Apple describes Liquid Glass as a refractive material. AppKit exposes `NSGlassEffectView` and `NSGlassEffectContainerView`; its documented glass styles are regular and clear. The installed SDK also exposes corner radius, tint, content, and (on macOS 27) interactivity. SwiftUI exposes `glassEffect`, the regular/clear variants, tint, interactivity, grouping and transitions.
 
-There is no documented Control Center preset or independent lens-strength/bezel-width property in these interfaces. The presence of native refraction does not guarantee identical rendering to every system component: geometry, backdrop, window activity, system version, and accessibility settings affect the appearance. No private Control Center implementation is assumed here.
+There is no documented Control Center preset or independent blur-radius, lens-strength or bezel-width property in these interfaces. Apple’s HIG says regular blurs and adjusts background luminosity for legibility; clear emphasizes the background. System appearance and accessibility preferences can influence these variants. The macOS 27 system slider is a user preference, not a documented per-view scalar API. The presence of native refraction does not guarantee identical rendering to every system component: geometry, backdrop, window activity, system version, and accessibility settings affect the appearance. No private Control Center implementation is assumed here.
 
 ## Reproduce
 
-Build a debug app with `./scripts/build-app.sh debug`. Quit an existing PopDeck instance before launching each mode:
+Use an independently identified bundle so testing does not overwrite or launch the installed production app:
 
 ```sh
-open -n .build/PopDeck.app --args --verify-glass
+POPDECK_BUNDLE_ID=com.tangfanx.popdeck.glass-validation \
+POPDECK_APP_DIR="$PWD/.build/glass-validation/PopDeck Glass Test.app" \
+./scripts/build-app.sh debug
 ```
 
-```sh
-open -n .build/PopDeck.app --args --verify-glass-inactive
-```
+For an isolated visual test, remove `SUFeedURL` and `SUPublicEDKey` from the fixture's Info.plist and re-sign it before launch. Use the separate fixture preferences domain; do not modify `com.tangfanx.popdeck`. Open the fixture with `--verify-glass` for the grid, then choose the two styles in Settings. `--verify-glass-inactive` intentionally restores the old inability to become key. Diagnostic grid modes are compiled only in debug builds. Do not use `run-app.sh` when preserving an installed version for a real-user upgrade test.
 
-The second mode intentionally restores the old inability to become key. If Settings is selected by the inspection tool, close Settings to inspect `PopDeck Panel`. Both grid modes are compiled only in debug builds. Run `./scripts/run-app.sh debug` to return to normal mode. Normal mode contains no diagnostic grid and retains the user's saved launcher items.
+On 2026-10-16, the real panel was inspected in both variants with the same split black/white grid. Regular visibly diffused the grid and retained readable foreground on its bright side. Clear preserved the lines and pronounced lensing at the circular edge, with poorer white-background contrast as expected. The fixture started with legacy `glassStrength = 0.5`; its initial style was regular. Selecting clear survived a later launch. These observations do not measure a continuous blur radius or change the system’s settings.
 
 ## Primary references
 
@@ -49,3 +49,6 @@ The second mode intentionally restores the old inability to become key. If Setti
 - [NSGlassEffectView.Style](https://developer.apple.com/documentation/appkit/nsglasseffectview/style-swift.enum)
 - [NSWindow.canBecomeKey](https://developer.apple.com/documentation/appkit/nswindow/canbecomekey)
 - Installed macOS 27 SDK: `AppKit.framework/Headers/NSGlassEffectView.h` and `SwiftUICore.framework/Modules/SwiftUICore.swiftmodule/arm64e-apple-macos.swiftinterface`.
+
+- [Apple HIG: Materials](https://developer.apple.com/design/human-interface-guidelines/materials): adaptive regular and translucent clear variants.
+- [Apple: Platforms State of the Union 2026](https://developer.apple.com/videos/play/wwdc2026/102/): system transparency customization and accessibility adaptation.

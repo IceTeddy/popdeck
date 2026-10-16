@@ -3,11 +3,11 @@ set -euo pipefail
 
 CONFIGURATION="${1:-release}"
 APP_NAME="PopDeck"
-BUNDLE_ID="com.tangfanx.popdeck"
-MARKETING_VERSION="${POPDECK_VERSION:-0.1.7}"
-BUILD_NUMBER="${POPDECK_BUILD_NUMBER:-8}"
+BUNDLE_ID="${POPDECK_BUNDLE_ID:-com.tangfanx.popdeck}"
+MARKETING_VERSION="${POPDECK_VERSION:-0.1.8}"
+BUILD_NUMBER="${POPDECK_BUILD_NUMBER:-9}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-APP_DIR="$ROOT_DIR/.build/$APP_NAME.app"
+APP_DIR="${POPDECK_APP_DIR:-$ROOT_DIR/.build/$APP_NAME.app}"
 RESOURCE_DIR="$ROOT_DIR/Sources/HaloHub/Resources"
 ICON_FILE="$RESOURCE_DIR/AppIcon.icns"
 

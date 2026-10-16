@@ -213,13 +213,13 @@ struct HaloPanelView: View {
 /// Give AppKit the actual controls as content, rather than putting an empty
 /// effect behind a separately composited hosting view.
 struct HaloGlassSurface<Content: View>: View {
-    @AppStorage(AppPreferences.glassStrengthKey) private var glassStrength = 0.0
+    @AppStorage(AppPreferences.glassStyleKey) private var glassStyle = HaloGlassStyle.regular.rawValue
     let size: CGFloat
     @ViewBuilder var content: Content
 
     var body: some View {
         if #available(macOS 26.0, *) {
-            NativeCircleGlass(size: size, strength: glassStrength, content: content)
+            NativeCircleGlass(size: size, style: HaloGlassStyle(rawValue: glassStyle) ?? .regular, content: content)
                 .frame(width: size, height: size)
 
         } else {
@@ -315,7 +315,7 @@ private struct HaloMenuButton: View {
                 if showItemName {
                     Text(item.title)
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Color.white.opacity(isHovered ? 0.98 : 0.90))
+                        .foregroundStyle(Color.primary.opacity(isHovered ? 0.98 : 0.90))
                         .lineLimit(1)
                         .truncationMode(.tail)
                         .minimumScaleFactor(0.78)
@@ -347,7 +347,7 @@ struct HaloMenuIconView: View {
             Image(systemName: symbolName)
                 .font(.system(size: symbolSize, weight: .semibold))
                 .symbolRenderingMode(.monochrome)
-                .foregroundStyle(Color.white.opacity(isHovered ? 1.0 : 0.84))
+                .foregroundStyle(Color.primary.opacity(isHovered ? 1.0 : 0.84))
                 .scaleEffect(isHovered ? 1.04 : 1)
                 .animation(.spring(response: 0.16, dampingFraction: 0.68), value: isHovered)
         case .app(let bundleIdentifier):
@@ -367,7 +367,7 @@ struct HaloMenuIconView: View {
         Image(systemName: icon.fallbackSymbolName)
             .font(.system(size: symbolSize, weight: .semibold))
             .symbolRenderingMode(.monochrome)
-            .foregroundStyle(Color.white.opacity(isHovered ? 1.0 : 0.84))
+            .foregroundStyle(Color.primary.opacity(isHovered ? 1.0 : 0.84))
             .scaleEffect(isHovered ? 1.04 : 1)
             .animation(.spring(response: 0.16, dampingFraction: 0.68), value: isHovered)
     }

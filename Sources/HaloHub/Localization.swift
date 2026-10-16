@@ -56,7 +56,17 @@ enum AppPreferences {
     static let iconSizeKey = "iconSize"
     static let appIconStyleKey = "appIconStyle"
     static let hubSizeKey = "hubSize"
-    static let glassStrengthKey = "glassStrength"
+    // The former glassStrength value only controlled black tint. Do not map it
+    // to a material or rewrite it during upgrade.
+    static let glassStyleKey = "glassStyle"
+}
+
+enum HaloGlassStyle: String, CaseIterable, Identifiable {
+    case regular
+    case clear
+
+    var id: String { rawValue }
+    var displayTitle: String { L10n.t("settings.glass.\(rawValue)") }
 }
 
 enum HaloIconSizePreference: String, CaseIterable, Identifiable {
@@ -280,11 +290,10 @@ enum L10n {
             "settings.addURL.button": "添加网址",
             "item.command.subtitle": "命令",
             "settings.addCommand.button": "添加命令",
-            "settings.glass.title": "玻璃浓度",
-            "settings.glass.clear": "更通透",
-            "settings.glass.strong": "更浓郁",
-            "settings.glass.hint": "向右拖动可降低背景干扰，让图标更容易看清。",
-            "settings.glass.reset": "重置",
+            "settings.glass.title": "液态玻璃",
+            "settings.glass.clear": "清透",
+            "settings.glass.regular": "常规（推荐）",
+            "settings.glass.hint": "常规：系统自适应模糊，提高可读性。清透：突出背景与边缘折射。透明度也会受 macOS 外观及辅助功能设置影响。",
             "settings.addCommand.subtitle": "在后台通过 /bin/zsh -lc 执行，工作目录为用户主目录。支持多行、管道和重定向；不会打开终端，也不支持交互输入。",
             "settings.addCommand.label": "Shell 命令",
             "settings.addCommand.invalid": "命令不能为空、包含空字符或与已有命令重复。",
@@ -374,11 +383,10 @@ enum L10n {
             "settings.addURL.button": "Add URL",
             "item.command.subtitle": "Command",
             "settings.addCommand.button": "Add Command",
-            "settings.glass.title": "Glass intensity",
-            "settings.glass.clear": "Clearer",
-            "settings.glass.strong": "Stronger",
-            "settings.glass.hint": "Move right to reduce background distraction and improve icon visibility.",
-            "settings.glass.reset": "Reset",
+            "settings.glass.title": "Liquid Glass",
+            "settings.glass.clear": "Clear",
+            "settings.glass.regular": "Regular (Recommended)",
+            "settings.glass.hint": "Regular adapts background blur for readability. Clear emphasizes the backdrop and edge refraction. macOS appearance and accessibility settings also affect transparency.",
             "settings.addCommand.subtitle": "Runs in the background via /bin/zsh -lc from your home directory. Supports multiple lines, pipes and redirection; no terminal or interactive input.",
             "settings.addCommand.label": "Shell command",
             "settings.addCommand.invalid": "Enter a nonempty command without NUL characters or duplicates.",

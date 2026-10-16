@@ -25,7 +25,7 @@ PopDeck 是一款使用 SwiftUI 和 AppKit 构建的原生 macOS 弹出式启动
 - 内置常用应用和文件夹默认项。
 - 支持添加自定义应用、文件夹、文件、URL 和 Shell 命令。
 - macOS 26 及以上使用原生 Liquid Glass 圆形面板，旧系统使用毛玻璃。
-- 设置中可拖动“玻璃浓度”滑块，实时调节原生着色强度并自动保存。该选项不直接调节模糊半径，也不更改系统外观设置。
+- 设置中可选原生“常规 / 清透”玻璃：常规自适应模糊并提高可读性，清透突出背景和边缘折射；不再叠加黑色着色。系统外观及辅助功能设置也会影响表现，公开 API 不提供独立的连续模糊参数。
 - 支持一键还原默认启动器布局。
 - 可选开机自动启动。
 - 支持中文和英文界面文本。
@@ -76,13 +76,13 @@ Sparkle 自动更新检查需要通过打包后的 `.app` bundle 运行。开发
 DMG 是 GitHub Release 里的公开下载文件，也同时作为 Sparkle 自动更新包：
 
 ```text
-dist/PopDeck-0.1.7.dmg
-dist/PopDeck-0.1.7.dmg.sha256
+dist/PopDeck-0.1.8.dmg
+dist/PopDeck-0.1.8.dmg.sha256
 ```
 
 ## 安装与首次打开
 
-1. 从 GitHub Releases 下载 `PopDeck-0.1.7.dmg`。
+1. 从 GitHub Releases 下载 `PopDeck-0.1.8.dmg`。
 2. 打开 DMG 后，将 `PopDeck.app` 拖到“应用程序”文件夹。
 3. 打开 PopDeck。
 
@@ -97,8 +97,8 @@ Developer ID 签名和 Apple notarization 会在后续版本中加入。
 
 - App 名称：`PopDeck`
 - Bundle identifier：`com.tangfanx.popdeck`
-- 当前版本：`0.1.7`
-- 当前构建号：`8`
+- 当前版本：`0.1.8`
+- 当前构建号：`9`
 
 ## Roadmap
 
