@@ -7,7 +7,11 @@ enum HaloShortcut: Codable, Equatable {
 
     static let storageKey = "haloShortcut"
     static let didChangeNotification = Notification.Name("HaloShortcutDidChange")
-    static let defaultShortcut = HaloShortcut.mouseButton(2)
+    static var defaultShortcut: HaloShortcut {
+        AppIdentity.isDevelopment
+            ? .keyboard(keyCode: UInt32(kVK_ANSI_H), modifiers: UInt32(controlKey | optionKey | cmdKey))
+            : .mouseButton(2)
+    }
 
     static var current: HaloShortcut {
         guard let data = UserDefaults.standard.data(forKey: storageKey),

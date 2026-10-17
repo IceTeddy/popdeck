@@ -11,6 +11,13 @@ STAGING_DIR="$ROOT_DIR/.build/dmg/$APP_NAME-$VERSION"
 DMG_PATH="$DIST_DIR/$APP_NAME-$VERSION.dmg"
 SHA_PATH="$DMG_PATH.sha256"
 
+if [[ "$CONFIGURATION" != release || "${POPDECK_CHANNEL:-production}" != production ]]; then
+    echo 'Distribution packages require production/release. Use run-app.sh for tests.' >&2
+    exit 2
+fi
+export POPDECK_CHANNEL=production
+source "$ROOT_DIR/scripts/app-build-settings.sh"
+
 "$ROOT_DIR/scripts/build-app.sh" "$CONFIGURATION"
 
 rm -rf "$STAGING_DIR" "$DMG_PATH" "$SHA_PATH"

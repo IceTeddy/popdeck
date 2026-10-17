@@ -8,9 +8,14 @@ struct PopDeckApp: App {
 
     var body: some Scene {
         Settings {
-            SettingsView()
+            SettingsWindowRedirect().frame(width: 1, height: 1)
         }
+        .windowResizability(.contentSize)
         .commands {
+            CommandGroup(replacing: .appSettings) {
+                Button(L10n.t("menu.settings")) { SettingsWindowController.shared.show() }
+                    .keyboardShortcut(",", modifiers: .command)
+            }
             CommandGroup(after: .appSettings) {
                 Button(L10n.t("menu.show")) {
                     HaloPanelController.shared.show(at: NSEvent.mouseLocation)
@@ -31,7 +36,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var shortcutRecordingHandler: ((HaloShortcut) -> Void)?
 
     private static var canStartSparkleUpdater: Bool {
-        Bundle.main.bundleURL.pathExtension == "app"
+        !AppIdentity.isDevelopment
+            && Bundle.main.bundleURL.pathExtension == "app"
             && Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") != nil
             && Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") != nil
     }
@@ -100,7 +106,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         presentPermissionNoticeIfNeeded()
         #if DEBUG
-        if ProcessInfo.processInfo.arguments.contains(where: { $0 == "--verify-glass" || $0 == "--verify-glass-inactive" }), let screen = NSScreen.main {
+        if ProcessInfo.processInfo.arguments.contains(where: { $0 == "--verify-glass" || $0 == "--verify-glass-inactive" || $0 == "--preview-panel" }), let screen = NSScreen.main {
             DispatchQueue.main.async {
                 SettingsWindowController.shared.window?.orderOut(nil)
                 HaloPanelController.shared.show(at: NSPoint(x: screen.visibleFrame.midX, y: screen.visibleFrame.midY))
@@ -132,6 +138,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let button = statusItem?.button else { return }
 
         button.image = menuBarIconImage()
+        button.toolTip = AppIdentity.displayName
+        if AppIdentity.isDevelopment { button.title = " Dev" }
         button.action = #selector(statusItemClicked)
         button.target = self
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
@@ -270,16 +278,21 @@ final class SettingsWindowController: NSWindowController {
 
     private init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 660, height: 640),
-            styleMask: [.titled, .closable, .miniaturizable],
+            contentRect: NSRect(x: 0, y: 0, width: 1100, height: 760),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
-        window.title = L10n.t("settings.window.title")
-        window.minSize = NSSize(width: 620, height: 520)
+        window.identifier = NSUserInterfaceItemIdentifier("PopDeckSettingsWindow")
+        window.title = AppIdentity.settingsTitle(L10n.t("settings.window.title"))
+        window.contentMinSize = NSSize(width: 1060, height: 520)
         window.center()
         window.isReleasedWhenClosed = false
-        window.contentView = NSHostingView(rootView: SettingsView())
+        let hosting = NSHostingView(rootView: SettingsView())
+        hosting.sizingOptions = [.minSize]
+        window.contentView = hosting
+        window.setFrameUsingName("PopDeckSettingsWindow")
+        window.setFrameAutosaveName("PopDeckSettingsWindow")
         super.init(window: window)
     }
 
@@ -290,11 +303,24 @@ final class SettingsWindowController: NSWindowController {
     func show() {
         NSApp.activate(ignoringOtherApps: true)
         refreshTitle()
-        window?.center()
         window?.makeKeyAndOrderFront(nil)
     }
 
+    func growForPreview(_ diameter: CGFloat) {
+        guard let window, let screen = window.screen ?? NSScreen.main else { return }
+        let visible = screen.visibleFrame
+        let content = window.contentRect(forFrameRect: window.frame)
+        let titleHeight = window.frame.height - content.height
+        let target = SettingsWindowSizing.contentSize(current: content.size,
+            screen: CGSize(width: visible.width, height: visible.height - titleHeight), previewDiameter: diameter)
+        guard target.width > content.width + 1 || target.height > content.height + 1 else { return }
+        var frame = window.frameRect(forContentRect: NSRect(origin: .zero, size: target))
+        frame.origin.x = max(visible.minX, min(window.frame.minX, visible.maxX - frame.width))
+        frame.origin.y = max(visible.minY, min(window.frame.maxY - frame.height, visible.maxY - frame.height))
+        window.setFrame(frame, display: true, animate: false)
+    }
+
     func refreshTitle() {
-        window?.title = L10n.t("settings.window.title")
+        window?.title = AppIdentity.settingsTitle(L10n.t("settings.window.title"))
     }
 }

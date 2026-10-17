@@ -1,26 +1,34 @@
 import AppKit
 import Foundation
 
-struct HaloMenuItem: Identifiable, Hashable {
+struct HaloMenuItem: Identifiable, Hashable, Sendable {
     let id: UUID
     let title: String
     let subtitle: String
     let icon: HaloMenuIcon
     let kind: HaloMenuItemKind
-    let action: HaloAction
+    var action: HaloAction
+    var sectorWeight: Double
+    var layoutRotation: Double
+    let iconAppearance: HaloIconAppearance
 
     init(id: UUID = UUID(), title: String, subtitle: String, symbolName: String, action: HaloAction) {
         self.init(id: id, title: title, subtitle: subtitle, icon: .symbol(symbolName), kind: HaloMenuItemKind(action: action), action: action)
     }
 
-    init(id: UUID = UUID(), title: String, subtitle: String, icon: HaloMenuIcon, kind: HaloMenuItemKind, action: HaloAction) {
+    init(id: UUID = UUID(), title: String, subtitle: String, icon: HaloMenuIcon, kind: HaloMenuItemKind, action: HaloAction, iconAppearance: HaloIconAppearance = .init(), sectorWeight: Double = 1, layoutRotation: Double = 0) {
         self.id = id
         self.title = title
         self.subtitle = subtitle
         self.icon = icon
         self.kind = kind
+        self.sectorWeight = sectorWeight
+        self.layoutRotation = layoutRotation
         self.action = action
+        self.iconAppearance = iconAppearance
     }
+
+    var sectorBackgroundColor: HaloIconColor? { iconAppearance.backgroundColor }
 
     static let defaultItems: [HaloMenuItem] = [
         HaloMenuItem(title: "Finder", subtitle: L10n.t("item.finder.subtitle"), symbolName: "folder.fill", action: .app(bundleIdentifier: "com.apple.finder")),
@@ -32,12 +40,13 @@ struct HaloMenuItem: Identifiable, Hashable {
     ]
 }
 
-enum HaloMenuItemKind: Hashable {
+enum HaloMenuItemKind: Hashable, Sendable {
     case app
     case file
     case folder
     case url
     case command
+    case unavailable
 
     init(action: HaloAction) {
         switch action {
@@ -47,6 +56,8 @@ enum HaloMenuItemKind: Hashable {
             self = .file
         case .folder:
             self = .folder
+        case .unavailable:
+            self = .unavailable
         case .command:
             self = .command
         case .url:
@@ -62,6 +73,8 @@ enum HaloMenuItemKind: Hashable {
             return "doc.fill"
         case .folder:
             return "folder.fill"
+        case .unavailable:
+            return "lock.fill"
         case .command:
             return "terminal.fill"
         case .url:
@@ -70,7 +83,7 @@ enum HaloMenuItemKind: Hashable {
     }
 }
 
-enum HaloMenuIcon: Hashable {
+enum HaloMenuIcon: Hashable, Sendable {
     case symbol(String)
     case app(bundleIdentifier: String)
     case file(path: String)
@@ -90,18 +103,22 @@ enum HaloMenuIcon: Hashable {
     }
 }
 
-enum HaloAction: Hashable {
+enum HaloAction: Hashable, Sendable {
     case app(bundleIdentifier: String)
     case url(URL?)
     case folder(URL?)
     case file(URL?)
-    case command(String)
+    case command(String, opensTerminal: Bool = false)
+    case unavailable
 
     @MainActor
     func perform() {
         switch self {
-        case .command(let command):
-            CommandRunner.perform(command)
+        case .unavailable:
+            FreeEditionInfo.show()
+            return
+        case .command(let command, let opensTerminal):
+            CommandRunner.perform(command, opensTerminal: opensTerminal)
         case .app(let bundleIdentifier):
             openApp(bundleIdentifier: bundleIdentifier)
         case .url(let url), .folder(let url), .file(let url):
@@ -130,16 +147,24 @@ struct PersistedHaloMenuItem: Codable, Identifiable, Equatable {
         case folder
         case file
         case command
+        case unavailable
+        init(from decoder: Decoder) throws {
+            self = Self(rawValue: try decoder.singleValueContainer().decode(String.self)) ?? .unavailable
+        }
     }
 
     let id: UUID
-    let title: String
+    var title: String
     let subtitleKey: String?
     let subtitle: String
     let symbolName: String
     let actionKind: ActionKind
-    let value: String
+    var value: String
+    var sectorWeight: Double
+    var opensTerminal: Bool
+    var iconAppearance: HaloIconAppearance?
     var iconPath: String?
+    var preservedFields: [String: OpaqueJSON] = [:]
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -149,10 +174,13 @@ struct PersistedHaloMenuItem: Codable, Identifiable, Equatable {
         case symbolName
         case actionKind
         case value
+        case sectorWeight
+        case opensTerminal
+        case iconAppearance
         case iconPath
     }
 
-    init(id: UUID, title: String, subtitleKey: String?, subtitle: String, symbolName: String, actionKind: ActionKind, value: String, iconPath: String? = nil) {
+    init(id: UUID, title: String, subtitleKey: String?, subtitle: String, symbolName: String, actionKind: ActionKind, value: String, iconPath: String? = nil, iconAppearance: HaloIconAppearance? = nil, opensTerminal: Bool = false, sectorWeight: Double = 1) {
         self.id = id
         self.title = title
         self.subtitleKey = subtitleKey
@@ -161,9 +189,14 @@ struct PersistedHaloMenuItem: Codable, Identifiable, Equatable {
         self.actionKind = actionKind
         self.value = value
         self.iconPath = iconPath
+        self.iconAppearance = iconAppearance
+        self.sectorWeight = sectorWeight
+        self.opensTerminal = opensTerminal
     }
 
     init(from decoder: Decoder) throws {
+        let all = try decoder.singleValueContainer().decode([String: OpaqueJSON].self)
+        preservedFields = all.filter { CodingKeys(stringValue: $0.key) == nil }
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
         title = try container.decode(String.self, forKey: .title)
@@ -171,8 +204,26 @@ struct PersistedHaloMenuItem: Codable, Identifiable, Equatable {
         subtitle = try container.decode(String.self, forKey: .subtitle)
         symbolName = try container.decode(String.self, forKey: .symbolName)
         actionKind = try container.decode(ActionKind.self, forKey: .actionKind)
+        if actionKind == .unavailable { preservedFields["actionKind"] = all["actionKind"] }
         value = try container.decode(String.self, forKey: .value)
+        sectorWeight = try container.decodeIfPresent(Double.self, forKey: .sectorWeight) ?? 1
+        if !sectorWeight.isFinite || sectorWeight <= 0 { sectorWeight = 1 }
+        opensTerminal = try container.decodeIfPresent(Bool.self, forKey: .opensTerminal) ?? false
+        iconAppearance = try container.decodeIfPresent(HaloIconAppearance.self, forKey: .iconAppearance)
         iconPath = try container.decodeIfPresent(String.self, forKey: .iconPath)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var extra = encoder.container(keyedBy: OpaqueCodingKey.self)
+        for (key, value) in preservedFields { try extra.encode(value, forKey: OpaqueCodingKey(stringValue: key)!) }
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id); try c.encode(title, forKey: .title)
+        try c.encodeIfPresent(subtitleKey, forKey: .subtitleKey); try c.encode(subtitle, forKey: .subtitle)
+        try c.encode(symbolName, forKey: .symbolName)
+        if actionKind != .unavailable { try c.encode(actionKind, forKey: .actionKind) }
+        try c.encode(value, forKey: .value); try c.encode(sectorWeight, forKey: .sectorWeight)
+        try c.encode(opensTerminal, forKey: .opensTerminal)
+        try c.encodeIfPresent(iconAppearance, forKey: .iconAppearance); try c.encodeIfPresent(iconPath, forKey: .iconPath)
     }
 
     var localizedSubtitle: String {
@@ -182,7 +233,7 @@ struct PersistedHaloMenuItem: Codable, Identifiable, Equatable {
         return subtitle
     }
 
-    func menuItem() -> HaloMenuItem {
+    func menuItem(rotation: Double = 0) -> HaloMenuItem {
         let action: HaloAction
         let icon: HaloMenuIcon
         switch actionKind {
@@ -199,8 +250,11 @@ struct PersistedHaloMenuItem: Codable, Identifiable, Equatable {
         case .folder:
             action = .folder(URL(fileURLWithPath: value))
             icon = subtitleKey == nil ? .file(path: value) : .symbol(symbolName)
+        case .unavailable:
+            action = .unavailable
+            icon = .symbol("lock.fill")
         case .command:
-            action = .command(value)
+            action = .command(value, opensTerminal: opensTerminal)
             icon = .symbol(symbolName)
         case .file:
             action = .file(URL(fileURLWithPath: value))
@@ -213,7 +267,9 @@ struct PersistedHaloMenuItem: Codable, Identifiable, Equatable {
             subtitle: localizedSubtitle,
             icon: icon,
             kind: HaloMenuItemKind(action: action),
-            action: action
+            action: action,
+            iconAppearance: iconAppearance ?? .init(),
+            sectorWeight: sectorWeight, layoutRotation: rotation
         )
     }
 }
@@ -223,17 +279,31 @@ final class HaloMenuStore: ObservableObject {
     static let shared = HaloMenuStore()
     static let itemLimitReachedNotification = Notification.Name("HaloMenuStoreItemLimitReached")
 
+    @Published private(set) var sectorRotation: Double = 0
     @Published private(set) var persistedItems: [PersistedHaloMenuItem] = []
 
-    private let storageKey = "haloMenuItems"
-    private let maxItemCount = 8
+    private let storageKey: String
+    private let rotationKey: String
+    private let startsEmpty: Bool
+    private let defaults: UserDefaults
+    private let maxItemCount: Int
+    private var isDraft = false
 
     var items: [HaloMenuItem] {
-        persistedItems.map { $0.menuItem() }
+        persistedItems.map { $0.menuItem(rotation: sectorRotation) }
     }
 
-    private init() {
-        load()
+    init(defaults: UserDefaults = .standard, storageKey: String = "haloMenuItems", startsEmpty: Bool = false, initialItems: [PersistedHaloMenuItem]? = nil) {
+        self.isDraft = initialItems != nil
+        self.maxItemCount = initialItems != nil ? 24 : LauncherLimits.panelItems
+        self.defaults = defaults
+        self.storageKey = storageKey
+        self.rotationKey = storageKey == "haloMenuItems" ? "haloSectorRotation" : storageKey + "Rotation"
+        self.startsEmpty = startsEmpty
+        let rotation = defaults.double(forKey: rotationKey)
+        sectorRotation = rotation.isFinite ? rotation : 0
+        if let initialItems { persistedItems = initialItems }
+        else { load() }
     }
 
     func addDroppedItem(at url: URL) {
@@ -278,7 +348,7 @@ final class HaloMenuStore: ObservableObject {
     }
 
     @discardableResult
-    func addCommand(title: String, command: String) -> Bool {
+    func addCommand(title: String, command: String, opensTerminal: Bool = false) -> Bool {
         guard canAddItem else { return false }
         guard CommandRunner.isValid(command),
               !persistedItems.contains(where: { $0.actionKind == .command && $0.value == command }) else {
@@ -293,8 +363,56 @@ final class HaloMenuStore: ObservableObject {
             subtitle: "Command",
             symbolName: "terminal.fill",
             actionKind: .command,
-            value: command
+            value: command,
+            opensTerminal: opensTerminal
         ))
+        save()
+        return true
+    }
+
+    @discardableResult
+    func updateCommand(id: UUID, title: String, command: String, opensTerminal: Bool = false) -> Bool {
+        guard let index = persistedItems.firstIndex(where: { $0.id == id && $0.actionKind == .command }),
+              CommandRunner.isValid(command),
+              !persistedItems.contains(where: { $0.id != id && $0.actionKind == .command && $0.value == command }) else { return false }
+        let name = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        persistedItems[index].title = name.isEmpty ? String(command.trimmingCharacters(in: .whitespacesAndNewlines).prefix(40)) : name
+        persistedItems[index].value = command
+        persistedItems[index].opensTerminal = opensTerminal
+        save()
+        return true
+    }
+
+    @discardableResult
+    func updateSectorLayout(_ layout: [HaloMenuItem]) -> Bool {
+        guard layout.map(\.id) == persistedItems.map(\.id),
+              layout.allSatisfy({ $0.sectorWeight.isFinite && $0.sectorWeight > 0 && $0.layoutRotation.isFinite }) else { return false }
+        var updated = persistedItems
+        for index in layout.indices {
+            updated[index].sectorWeight = layout[index].sectorWeight
+
+        }
+        sectorRotation = (layout.first?.layoutRotation ?? 0).truncatingRemainder(dividingBy: 2 * .pi)
+        defaults.set(sectorRotation, forKey: rotationKey)
+        persistedItems = updated
+        save()
+        return true
+    }
+
+    func resetSectorWidths() {
+        for index in persistedItems.indices {
+            persistedItems[index].sectorWeight = 1
+        }
+        sectorRotation = 0
+        defaults.set(0, forKey: rotationKey)
+        save()
+    }
+
+    @discardableResult
+    func updateAppearance(id: UUID, appearance: HaloIconAppearance) -> Bool {
+        guard let index = persistedItems.firstIndex(where: { $0.id == id }), appearance.isValid else { return false }
+        let normalized = appearance.normalized
+        persistedItems[index].iconAppearance = normalized == HaloIconAppearance() ? nil : normalized
         save()
         return true
     }
@@ -414,15 +532,18 @@ final class HaloMenuStore: ObservableObject {
         save()
     }
 
+    /// Validate the destination before removing anything from the source ring.
     func resetToDefaults() {
-        persistedItems = Self.makeDefaultItems()
+        sectorRotation = 0
+        defaults.set(0, forKey: rotationKey)
+        persistedItems = startsEmpty ? [] : Self.makeDefaultItems()
         save()
     }
 
     private func load() {
-        guard let data = UserDefaults.standard.data(forKey: storageKey),
+        guard let data = defaults.data(forKey: storageKey),
               let decoded = try? JSONDecoder().decode([PersistedHaloMenuItem].self, from: data) else {
-            persistedItems = Self.makeDefaultItems()
+            persistedItems = startsEmpty ? [] : Self.makeDefaultItems()
             save()
             scheduleMissingFaviconRefresh()
             return
@@ -435,8 +556,9 @@ final class HaloMenuStore: ObservableObject {
     }
 
     private func save() {
+        guard !isDraft else { return }
         guard let data = try? JSONEncoder().encode(persistedItems) else { return }
-        UserDefaults.standard.set(data, forKey: storageKey)
+        defaults.set(data, forKey: storageKey)
     }
 
     private func refreshMissingFavicons() {

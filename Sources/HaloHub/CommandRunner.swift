@@ -40,7 +40,11 @@ enum CommandRunner {
     }
 
     @MainActor
-    static func perform(_ command: String) {
+    static func perform(_ command: String, opensTerminal: Bool = false) {
+        if opensTerminal {
+            TerminalCommandLauncher.perform(command)
+            return
+        }
         Task {
             let result = await Task.detached(priority: .userInitiated) { run(command) }.value
             guard result.status != 0 else { return }

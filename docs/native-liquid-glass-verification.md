@@ -37,7 +37,7 @@ POPDECK_APP_DIR="$PWD/.build/glass-validation/PopDeck Glass Test.app" \
 ./scripts/build-app.sh debug
 ```
 
-For an isolated visual test, remove `SUFeedURL` and `SUPublicEDKey` from the fixture's Info.plist and re-sign it before launch. Use the separate fixture preferences domain; do not modify `com.tangfanx.popdeck`. Open the fixture with `--verify-glass` for the grid, then choose the two styles in Settings. `--verify-glass-inactive` intentionally restores the old inability to become key. Diagnostic grid modes are compiled only in debug builds. Do not use `run-app.sh` when preserving an installed version for a real-user upgrade test.
+The development build profile already omits the production update feed and uses an independent signing identity and preferences domain; do not modify `com.tangfanx.popdeck`. Open the fixture with `--verify-glass` for the grid, then choose the two styles in Settings. `--verify-glass-inactive` intentionally restores the old inability to become key. Diagnostic grid modes are compiled only in debug builds. `run-app.sh` now always launches the isolated development profile, including when passed `release`; production upgrade fixtures remain separate.
 
 On 2026-10-16, the real panel was inspected in both variants with the same split black/white grid. Regular visibly diffused the grid and retained readable foreground on its bright side. Clear preserved the lines and pronounced lensing at the circular edge, with poorer white-background contrast as expected. The fixture started with legacy `glassStrength = 0.5`; its initial style was regular. Selecting clear survived a later launch. These observations do not measure a continuous blur radius or change the system’s settings.
 

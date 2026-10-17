@@ -11,3 +11,27 @@ wrangler.toml
 .DS_Store
 DerivedData/
 dist/
+promo-video/
+
+# Unpublished implementation and local signing/licensing data
+.popdeck-pro-root
+.private/
+Private/
+ProPrivate/
+**/.private/
+**/signing-key.json
+**/ledger.json
+**/owner-test-license.json
+**/*owner-test*.json
+*.popdecklicense
+__pycache__/
+*.pyc
+*.p8
+*.p12
+*.pfx
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+**/ledger*.json

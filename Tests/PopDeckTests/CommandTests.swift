@@ -64,4 +64,19 @@ final class CommandTests: XCTestCase {
             XCTAssertEqual(try JSONDecoder().decode(PersistedHaloMenuItem.self, from: Data(legacy.utf8)).actionKind, kind)
         }
     }
+    @MainActor
+    func testFirstPanelAcceptsSeventhAndEighthItemsAndRejectsNinth() throws {
+        let suite = "PanelCapacity-\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = HaloMenuStore(defaults: defaults)
+        XCTAssertEqual(store.items.count, 6)
+        XCTAssertTrue(store.addCommand(title: "Seven", command: "printf seven"))
+        XCTAssertTrue(store.addCommand(title: "Eight", command: "printf eight"))
+        XCTAssertEqual(store.items.count, LauncherLimits.panelItems)
+        XCTAssertFalse(store.addCommand(title: "Nine", command: "printf nine"))
+        XCTAssertEqual(store.items.count, 8)
+        XCTAssertEqual(HaloMenuStore(defaults: defaults).items.count, 8)
+    }
+
 }

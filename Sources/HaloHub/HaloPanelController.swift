@@ -13,6 +13,8 @@ final class HaloPanelController {
     private var isOrderingOut = false
     private var presentationID = 0
     private var hideRequestID = 0
+    private var renderScale: CGFloat = 1
+    private var clickGate = HaloPanelClickGate()
 
     var isVisible: Bool {
         panel?.isVisible == true
@@ -35,10 +37,14 @@ final class HaloPanelController {
 
         guard let panel else { return }
         presentationID += 1
+        let intrinsic = intrinsicPanelSize
+        let screen = NSScreen.screens.first { $0.frame.contains(screenPoint) } ?? NSScreen.main
+        let available = screen?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1200, height: 900)
+        renderScale = min(1, min(available.width - 16, available.height - 16) / intrinsic)
         let size = currentPanelSize
         let origin = NSPoint(
-            x: screenPoint.x - size.width / 2,
-            y: screenPoint.y - size.height / 2
+            x: max(available.minX, min(available.maxX - size.width, screenPoint.x - size.width / 2)),
+            y: max(available.minY, min(available.maxY - size.height, screenPoint.y - size.height / 2))
         )
         panel.setFrame(NSRect(origin: origin, size: size), display: false)
         updateContentView()
@@ -108,15 +114,10 @@ final class HaloPanelController {
     }
 
     private func updateContentView() {
-        let view = HaloPanelView(
-            items: HaloMenuStore.shared.items,
+        let view = HaloPanelView(items: HaloMenuStore.shared.items,
             showItemNames: UserDefaults.standard.bool(forKey: AppPreferences.showItemNamesKey),
-            iconSizePreference: HaloIconSizePreference.current,
-            hubSizePreference: HaloHubSizePreference.current,
-            appIconStyle: HaloAppIconStyle.current,
-            presentationID: presentationID,
-            onClose: { [weak self] in self?.hide() }
-        )
+            appearance: FreePanelConfiguration.shared.appearance, presentationID: presentationID,
+            onClose: { [weak self] in self?.hide() }, renderScale: renderScale)
 
         if let hostingView {
             hostingView.rootView = view
@@ -128,11 +129,23 @@ final class HaloPanelController {
     private func startOutsideClickMonitoring() {
         stopOutsideClickMonitoring()
 
-        localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .mouseMoved]) { [weak self] event in
+        localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .mouseMoved]) { [weak self] event in
             guard let self else { return event }
             if event.type == .mouseMoved {
                 self.publishHoverLocation(onScreen: NSEvent.mouseLocation)
                 return event
+            }
+            // Route base-ring clicks before native glass/hosting views can swallow them.
+            if event.type == .leftMouseUp, self.clickGate.finish() {
+                if let panel = self.panel, panel.isVisible, event.window === panel, let hosting = self.hostingView {
+                    let point = hosting.convert(event.locationInWindow, from: nil)
+                    NotificationCenter.default.post(name: .haloPanelSelection, object: NSValue(point: point))
+                }
+                return nil
+            }
+            if event.type == .leftMouseDown, event.window === self.panel,
+               self.clickGate.begin(inside: self.isPointInsideHubCircle(NSEvent.mouseLocation), groupExpanded: false) {
+                return nil
             }
             if !self.isPointInsideHubCircle(NSEvent.mouseLocation) {
                 self.hide(immediately: true)
@@ -166,6 +179,7 @@ final class HaloPanelController {
     }
 
     private func stopOutsideClickMonitoring() {
+        clickGate.reset()
         if let localMouseMonitor {
             NSEvent.removeMonitor(localMouseMonitor)
             self.localMouseMonitor = nil
@@ -180,17 +194,24 @@ final class HaloPanelController {
         guard let panel, panel.isVisible else { return false }
         let frame = panel.frame
         let center = NSPoint(x: frame.midX, y: frame.midY)
-        return hypot(screenPoint.x - center.x, screenPoint.y - center.y) <= HaloHubSizePreference.current.hitRadius
+        return hypot(screenPoint.x - center.x, screenPoint.y - center.y) <=
+            (SinglePanelMetrics(appearance: FreePanelConfiguration.shared.appearance).outerRadius + 4) * renderScale
+    }
+
+    private var intrinsicPanelSize: CGFloat {
+        SinglePanelMetrics(appearance: FreePanelConfiguration.shared.appearance).panelSize
     }
 
     private var currentPanelSize: NSSize {
-        let size = HaloHubSizePreference.current.panelSize
+        let size = intrinsicPanelSize * renderScale
         return NSSize(width: size, height: size)
     }
+
 }
 
 extension Notification.Name {
     static let haloPanelWillClose = Notification.Name("HaloPanelWillClose")
+    static let haloPanelSelection = Notification.Name("HaloPanelSelection")
     static let haloPanelMouseMoved = Notification.Name("HaloPanelMouseMoved")
 }
 

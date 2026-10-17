@@ -1,112 +1,41 @@
-<p align="center">
-  <img src="docs/assets/popdeck-logo.png" width="128" alt="PopDeck logo">
-</p>
-
+<p align="center"><img src="docs/assets/popdeck-logo.png" width="128" alt="PopDeck"></p>
 <h1 align="center">PopDeck</h1>
 
-<p align="center">
-  <a href="https://popdeck.pages.dev/">官网</a> | <a href="README.md">English</a> | <a href="README.zh-CN.md">中文</a>
-</p>
+[官网](https://popdeck.pages.dev/) · [English](README.md)
 
-PopDeck 是一款使用 SwiftUI 和 AppKit 构建的原生 macOS 弹出式启动器。它常驻菜单栏，可以在鼠标指针附近呼出启动面板，用来快速打开常用应用、文件夹、文件和网页链接。
+原生 macOS 圆形快捷启动器，使用 SwiftUI 和 AppKit 构建。此仓库提供可独立构建的**单圈免费版源码**；PRO 的多圈、分组、扇形命令集、激活模块及相关测试和资源位于仓库外的私有源码覆盖层，不属于公开源码。
 
-项目目前处于早期开发阶段。当前目标是先做成一个轻量、开源、配置清晰的 macOS 工具，并为后续自动更新能力打好发布基础。
+免费版支持应用、文件、文件夹、网址和单条 Shell 命令；命令可编辑，支持静默运行或打开终端。支持图标颜色、Emoji、文字显示、弧形排版、扇形宽度、面板大小、音效、快捷键和开机启动。macOS 26 及以上使用系统原生 Liquid Glass，旧系统回退毛玻璃。
 
-## 预览
+PRO 计划为 ¥6 一次性个人永久授权，包含后续更新，允许本人多台 Mac 使用。本轮 PRO 仅在独立测试版验证，尚未发布。公开源码中的 PRO 角标和说明仅用于展示权益，不含高级功能实现或授权验证代码。
 
-<img src="docs/assets/popdeck-hub-demo.webp" width="420" alt="PopDeck 启动器演示">
+## 构建与测试
 
-## 功能
+需要 macOS 14+、Xcode 26+ 或对应 Swift 工具链。
 
-- 无 Dock 图标的菜单栏应用。
-- 全局启动快捷键，可在设置中配置。
-- 跟随鼠标位置呼出的启动面板。
-- 支持拖动、排序和移除启动项。
-- 内置常用应用和文件夹默认项。
-- 支持添加自定义应用、文件夹、文件、URL 和 Shell 命令。
-- macOS 26 及以上使用原生 Liquid Glass 圆形面板，旧系统使用毛玻璃。
-- 设置中可选原生“常规 / 清透”玻璃：常规自适应模糊并提高可读性，清透突出背景和边缘折射；不再叠加黑色着色。系统外观及辅助功能设置也会影响表现，公开 API 不提供独立的连续模糊参数。
-- 支持一键还原默认启动器布局。
-- 可选开机自动启动。
-- 支持中文和英文界面文本。
-
-## 命令快捷方式
-
-在设置中点击“添加命令”，填写可选名称及 Shell 命令，再点击“添加”。点击面板中的命令图标即可后台运行。命令通过 `/bin/zsh -lc` 执行，初始工作目录为当前用户主目录，并读取 zsh 的登录配置；可在命令中使用 `cd` 切换目录，或使用绝对路径。支持多行、管道、引号及重定向。执行失败时显示退出状态及错误输出。
-
-命令不会打开终端，标准输入和标准输出接到空设备；需要保存输出时请自行重定向到文件。需要交互输入的命令应通过 Terminal 等应用运行。命令项与其他启动项共享 8 项上限，可拖动排序或拖到中心删除。
-
-## 环境要求
-
-- macOS 14 或更高版本。
-- Xcode 26 或更高版本（包含 Liquid Glass SDK），或对应的 Swift 工具链。
-
-## 从源码运行
-
-```bash
-./scripts/run-app.sh
+```sh
+swift build
+./scripts/test-edition.sh free
+POPDECK_EDITION=free ./scripts/run-app.sh debug
 ```
 
-也可以在 Xcode 中将本文件夹作为 Swift package 打开，选择 `PopDeck` executable 后运行。
+`swift build` 和 `swift test` 默认只读取公开免费源码。运行脚本仅构建、签名并启动 `.build/PopDeck Dev.app`，不安装或覆盖 `/Applications/PopDeck.app`。没有本地私有配置的公开克隆中，直接运行 `./scripts/run-app.sh debug` 也会使用免费版。
 
-Sparkle 自动更新检查需要通过打包后的 `.app` bundle 运行。开发时如果要测试检查更新，请使用：
+命令通过 `/bin/zsh -lc` 执行，默认工作目录为用户主目录。可保存多行、管道及重定向；静默模式不提供交互输入，需要交互时选择终端执行。
 
-```bash
-./scripts/run-app.sh
+免费源码版会将不支持的配置项作为不可执行占位保留，并原样保留未知字段；其他圆环的偏好键不会被修改。恢复默认、主动删除等操作仍按用户选择生效。源码版不提供 PRO 激活；授权文件与面板偏好独立，切换构建不会删除已有授权。
+
+## 公开源码边界
+
+```sh
+python3 scripts/audit-public-source.py --history
+python3 scripts/export-public-source.py
 ```
 
-## 构建 App Bundle
+导出位于 `.build/public-source`，仅包含白名单中的免费源码、测试、文档和构建脚本，附 SHA-256 清单。不包含 `.git`、本地配置、私有覆盖层、构建缓存、发码工具、私钥、账本或激活凭证。已存在的导出目录不会被覆盖。
 
-```bash
-./scripts/build-app.sh release
-```
-
-构建完成后的 app bundle 位于：
-
-```text
-.build/PopDeck.app
-```
-
-## 创建 DMG
-
-```bash
-./scripts/package-dmg.sh
-```
-
-DMG 是 GitHub Release 里的公开下载文件，也同时作为 Sparkle 自动更新包：
-
-```text
-dist/PopDeck-0.1.8.dmg
-dist/PopDeck-0.1.8.dmg.sha256
-```
-
-## 安装与首次打开
-
-1. 从 GitHub Releases 下载 `PopDeck-0.1.8.dmg`。
-2. 打开 DMG 后，将 `PopDeck.app` 拖到“应用程序”文件夹。
-3. 打开 PopDeck。
-
-当前发布构建尚未签名。如果 macOS 阻止打开应用，可以使用下面任意一种方式：
-
-- 按住 Control 键点击 `PopDeck.app`，选择“打开”，然后在确认弹窗中再次选择“打开”。
-- 或打开“系统设置”，进入“隐私与安全性”，找到 PopDeck 被阻止的提示，然后选择“仍要打开”。
-
-Developer ID 签名和 Apple notarization 会在后续版本中加入。
-
-## 项目标识
-
-- App 名称：`PopDeck`
-- Bundle identifier：`com.tangfanx.popdeck`
-- 当前版本：`0.1.8`
-- 当前构建号：`9`
-
-## Roadmap
-
-- 使用 GitHub Releases 提供第一批公开下载。
-- 接入基于 Sparkle 的自动更新。
-- 添加 Developer ID 签名和 Apple notarization。
-- 根据实际情况选择 GitHub Releases、Cloudflare R2 或二者共同托管更新 feed 和发布产物。
+[源码边界与本地 PRO 构建](docs/source-boundaries.md) · [独立测试版说明](docs/development-builds.md)
 
 ## License
 
-PopDeck 使用 MIT License 开源。详见 [LICENSE](LICENSE)。
+公开免费源码继续采用 [MIT License](LICENSE)。已公开版本的授权保持有效。仓库外的未公开 PRO 实现不属于本次公开源码分发。

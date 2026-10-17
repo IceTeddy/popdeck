@@ -117,7 +117,7 @@ actor FaviconFetcher {
         let baseURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSTemporaryDirectory())
         return baseURL
-            .appendingPathComponent("PopDeck", isDirectory: true)
+            .appendingPathComponent(AppIdentity.cacheDirectoryName, isDirectory: true)
             .appendingPathComponent("Favicons", isDirectory: true)
             .appendingPathComponent(filename)
     }
