@@ -2,8 +2,8 @@
 set -euo pipefail
 
 CONFIGURATION="${1:-debug}"
-MARKETING_VERSION="${POPDECK_VERSION:-0.1.8}"
-BUILD_NUMBER="${POPDECK_BUILD_NUMBER:-9}"
+MARKETING_VERSION="${POPDECK_VERSION:-0.1.9}"
+BUILD_NUMBER="${POPDECK_BUILD_NUMBER:-10}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/app-build-settings.sh"
 EDITION="${POPDECK_EDITION:-free}"
