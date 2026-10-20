@@ -6,8 +6,8 @@ This document describes the current manual release process for PopDeck. Sparkle 
 
 - App name: `PopDeck`
 - Bundle identifier: `com.tangfanx.popdeck`
-- Version: `0.1.9`
-- Build: `10`
+- Version: `0.1.10`
+- Build: `11`
 - Minimum macOS version: `14.0`
 
 ## Create Local Artifacts
@@ -23,14 +23,14 @@ The official downloadable app requires the external private overlay and contains
 This creates:
 
 ```text
-dist/PopDeck-0.1.9.dmg
-dist/PopDeck-0.1.9.dmg.sha256
+dist/PopDeck-0.1.10.dmg
+dist/PopDeck-0.1.10.dmg.sha256
 ```
 
 ## Publish On GitHub
 
-1. Create a GitHub Release tag such as `v0.1.9`.
-2. Upload `dist/PopDeck-0.1.9.dmg`.
+1. Create a GitHub Release tag such as `v0.1.10`.
+2. Upload `dist/PopDeck-0.1.10.dmg`.
 3. Keep the release notes short and user-facing.
 4. Clearly state that the build is currently unsigned.
 

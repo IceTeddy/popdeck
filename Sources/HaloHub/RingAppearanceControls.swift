@@ -13,6 +13,7 @@ struct RingAppearanceControls: View {
                     if size != HaloHubSizePreference.allCases.last { Spacer() }
                 }
             }.foregroundStyle(.secondary)
+            CenterDiameterControl(appearance: $configuration.appearance)
             Picker(L10n.t("settings.iconSize.title"), selection: $configuration.appearance.iconSize) {
                 ForEach(HaloIconSizePreference.allCases) { Text($0.displayTitle).tag($0) }
             }

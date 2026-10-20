@@ -44,4 +44,23 @@ final class FreeEditionTests: XCTestCase {
         XCTAssertLessThan(metrics.innerRadius, metrics.itemRadius)
         XCTAssertLessThan(metrics.itemRadius, metrics.outerRadius)
     }
+    @MainActor
+    func testCenterDiameterPersistsAndResetRestoresLegacyGeometry() throws {
+        let suite = "CenterDiameter-Free-\(UUID())"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let config = FreePanelConfiguration(defaults: defaults)
+        let original = SinglePanelMetrics(appearance: config.appearance)
+        config.appearance.centerDiameter = 70
+        let loaded = FreePanelConfiguration(defaults: defaults)
+        let metrics = SinglePanelMetrics(appearance: loaded.appearance)
+        XCTAssertEqual(metrics.centerSize, 70)
+        XCTAssertEqual(metrics.innerRadius, 35 + 3 * loaded.appearance.scale)
+        XCTAssertEqual(metrics.outerRadius, original.outerRadius)
+        XCTAssertEqual(metrics.itemRadius, original.itemRadius)
+        loaded.appearance.centerDiameter = nil
+        XCTAssertNil(FreePanelConfiguration(defaults: defaults).appearance.centerDiameter)
+        XCTAssertEqual(SinglePanelMetrics(appearance: loaded.appearance).centerSize, original.centerSize)
+    }
+
 }

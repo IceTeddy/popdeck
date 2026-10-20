@@ -7,6 +7,16 @@ struct HaloRingAppearance: Equatable {
     /// Continuous position between the four named stops. Nil reads the legacy preset.
     var sizePosition: Double? = nil
 
+    /// Absolute diameter in points; nil follows the original panel-size proportion.
+    var centerDiameter: Double? = nil
+    var centerDiameterRange: ClosedRange<Double> { 48...max(48, 240 * scale) }
+    var resolvedCenterDiameter: Double {
+        guard let diameter = centerDiameter, diameter.isFinite else { return 150 * scale }
+        return min(centerDiameterRange.upperBound, max(centerDiameterRange.lowerBound, diameter))
+    }
+    var centerInnerRadius: Double { resolvedCenterDiameter / 2 + 3 * scale }
+
+
     var position: Double {
         let fallback = Double(HaloHubSizePreference.allCases.firstIndex(of: size) ?? 1)
         guard let value = sizePosition, value.isFinite else { return fallback }
@@ -20,5 +30,5 @@ struct HaloRingAppearance: Equatable {
         let lower = min(2, Int(position))
         return stops[lower] + (stops[lower + 1] - stops[lower]) * (position - Double(lower))
     }
-    var scale: Double { interpolate([0.68, 0.80, 0.90, 1.0]) }
+    var scale: Double { interpolate([0.56, 0.68, 0.80, 0.90]) }
 }

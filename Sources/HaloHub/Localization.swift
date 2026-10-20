@@ -171,13 +171,13 @@ enum HaloHubSizePreference: String, CaseIterable, Identifiable {
     private var scale: CGFloat {
         switch self {
         case .extraSmall:
-            return 0.68
+            return 0.56
         case .small:
-            return 0.80
+            return 0.68
         case .medium:
-            return 0.90
+            return 0.80
         case .large:
-            return 1.00
+            return 0.90
         }
     }
 
