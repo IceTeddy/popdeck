@@ -6,15 +6,15 @@
         <description>Appcast feed for PopDeck automatic updates.</description>
         <language>en</language>
         <item>
-            <title>0.1.10</title>
-            <pubDate>Tue, 20 Oct 2026 09:37:09 +0800</pubDate>
+            <title>0.1.11</title>
+            <pubDate>Fri, 23 Oct 2026 09:12:26 +0800</pubDate>
             <link>https://github.com/IceTeddy/popdeck</link>
-            <sparkle:fullReleaseNotesLink>https://github.com/IceTeddy/popdeck/releases/tag/v0.1.10</sparkle:fullReleaseNotesLink>
-            <sparkle:version>11</sparkle:version>
-            <sparkle:shortVersionString>0.1.10</sparkle:shortVersionString>
+            <sparkle:fullReleaseNotesLink>https://github.com/IceTeddy/popdeck/releases/tag/v0.1.11</sparkle:fullReleaseNotesLink>
+            <sparkle:version>12</sparkle:version>
+            <sparkle:shortVersionString>0.1.11</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://github.com/IceTeddy/popdeck/releases/download/v0.1.10/PopDeck-0.1.10.dmg" length="3859837" type="application/octet-stream" sparkle:edSignature="EmQ+vd80E9Ifl4QchqzsOgJnxxuSTkgcEnLZEHOAVIAxLzEx23Sk0oqOugaOywz4d4csepdxa2muVEqr6Qn2CA=="/>
+            <enclosure url="https://github.com/IceTeddy/popdeck/releases/download/v0.1.11/PopDeck-0.1.11.dmg" length="3855990" type="application/octet-stream" sparkle:edSignature="FBZxpSOnW5OQXUqXJh4s6v8pBA0UVO939eJL8Ib/LIoMNSMaqcBVvpzbeVXgr9c1uqKz5DVRkxjaBzqX4jDhDw=="/>
         </item>
     </channel>
 </rss>
