@@ -24,13 +24,15 @@ struct HaloIconAppearance: Codable, Hashable, Sendable {
     var displayMode: DisplayMode = .automatic
     var textStyle: LauncherTextStyle = .horizontal
     var emoji: String? = nil
+    var customImageData: Data? = nil
     var color: HaloIconColor? = nil
     var backgroundColor: HaloIconColor? = nil
 
-    enum CodingKeys: String, CodingKey { case emoji, color, displayMode, textStyle, backgroundColor }
+    enum CodingKeys: String, CodingKey { case emoji, color, displayMode, textStyle, backgroundColor, customImageData }
 
     init(emoji: String? = nil, color: HaloIconColor? = nil, displayMode: DisplayMode = .automatic,
-         textStyle: LauncherTextStyle = .horizontal, backgroundColor: HaloIconColor? = nil) {
+         textStyle: LauncherTextStyle = .horizontal, backgroundColor: HaloIconColor? = nil, customImageData: Data? = nil) {
+        self.customImageData = customImageData
         self.backgroundColor = backgroundColor
         self.emoji = emoji
         self.color = color
@@ -41,6 +43,7 @@ struct HaloIconAppearance: Codable, Hashable, Sendable {
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         emoji = try c.decodeIfPresent(String.self, forKey: .emoji)
+        customImageData = try? c.decodeIfPresent(Data.self, forKey: .customImageData)
         color = try c.decodeIfPresent(HaloIconColor.self, forKey: .color)
         backgroundColor = try c.decodeIfPresent(HaloIconColor.self, forKey: .backgroundColor)
         displayMode = try c.decodeIfPresent(DisplayMode.self, forKey: .displayMode) ?? .automatic
@@ -49,10 +52,19 @@ struct HaloIconAppearance: Codable, Hashable, Sendable {
 
     var normalized: Self {
         let text = emoji?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return Self(emoji: text.isEmpty ? nil : text, color: color, displayMode: displayMode, textStyle: textStyle, backgroundColor: backgroundColor)
+        return Self(emoji: text.isEmpty ? nil : text, color: color, displayMode: displayMode, textStyle: textStyle, backgroundColor: backgroundColor, customImageData: text.isEmpty ? customImageData : nil)
+    }
+
+    func restoringDefaultIcon() -> Self {
+        var result = self
+        result.emoji = nil
+        result.customImageData = nil
+        result.color = nil
+        return result
     }
 
     var isValid: Bool {
+        if let data = normalized.customImageData, !CustomIconImage.isValid(data) { return false }
         guard let text = normalized.emoji else { return true }
         if EmojiCatalog.symbols.contains(text) { return true }
         return text.count == 1 && text.unicodeScalars.contains {

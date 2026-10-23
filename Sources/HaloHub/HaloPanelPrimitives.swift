@@ -115,7 +115,13 @@ struct HaloMenuIconView: View {
     var appearance = HaloIconAppearance()
 
     var body: some View {
-        if let emoji = appearance.normalized.emoji {
+        if let data = appearance.normalized.customImageData, let image = CustomIconImageCache.shared.image(for: data) {
+            Image(nsImage: image)
+                .resizable().interpolation(.high).aspectRatio(contentMode: .fit)
+                .frame(width: size, height: size)
+                .saturation(appIconStyle == .monochrome && !isHovered ? 0 : 1)
+                .scaleEffect(isHovered ? 1.04 : 1)
+        } else if let emoji = appearance.normalized.emoji {
             Text(emoji).font(.system(size: size * 0.85))
                 .frame(width: size, height: size)
                 .scaleEffect(isHovered ? 1.04 : 1)

@@ -15,6 +15,7 @@ final class HaloPanelController {
     private var hideRequestID = 0
     private var renderScale: CGFloat = 1
     private var clickGate = HaloPanelClickGate()
+    private let focusRecovery = HaloPanelFocusRecovery()
 
     var isVisible: Bool {
         panel?.isVisible == true
@@ -48,13 +49,28 @@ final class HaloPanelController {
         )
         panel.setFrame(NSRect(origin: origin, size: size), display: false)
         updateContentView()
-        NSApp.activate(ignoringOtherApps: false)
+        startOutsideClickMonitoring()
+        let request = presentationID
+        focusRecovery.begin(isCurrent: { [weak self, weak panel] in
+            guard let self, let panel else { return false }
+            return self.panel === panel && panel.isVisible && !self.isHiding && !self.isOrderingOut
+                && self.presentationID == request
+        }, repair: { [weak self, weak panel] in
+            guard let self, let panel else { return }
+            if NSApp.isActive && panel.canBecomeKey && !panel.isKeyWindow {
+                panel.makeKeyAndOrderFront(nil)
+            }
+            HaloPanelFocusRecovery.record("activation-recheck", panel: panel)
+            // SwiftUI subscriptions and entrance state are now ready to receive hover.
+            self.publishHoverLocation(onScreen: NSEvent.mouseLocation)
+        })
+        NSApp.activate(ignoringOtherApps: true)
         if panel.canBecomeKey {
             panel.makeKeyAndOrderFront(nil)
         } else {
             panel.orderFrontRegardless()
         }
-        startOutsideClickMonitoring()
+        HaloPanelFocusRecovery.record("presented", panel: panel)
         publishHoverLocation(onScreen: NSEvent.mouseLocation)
     }
 
@@ -84,6 +100,7 @@ final class HaloPanelController {
         guard !isOrderingOut else { return }
         isOrderingOut = true
         panel.orderOut(nil)
+        HaloPanelFocusRecovery.record("dismissed", panel: panel)
         isOrderingOut = false
         isHiding = false
     }
@@ -104,6 +121,7 @@ final class HaloPanelController {
         panel.backgroundColor = .clear
         panel.hasShadow = false
         panel.acceptsMouseMovedEvents = true
+        panel.becomesKeyOnlyIfNeeded = false
         panel.level = .floating
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         panel.hidesOnDeactivate = false
@@ -153,10 +171,17 @@ final class HaloPanelController {
             return event
         }
 
-        globalMouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+        let request = presentationID
+        // Global monitors see other apps' events, local monitors see ours. Keep
+        // hover working during activation instead of depending on key-window timing.
+        globalMouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .mouseMoved]) { [weak self] event in
+            let isMovement = event.type == .mouseMoved
             Task { @MainActor in
-                guard let self else { return }
-                if !self.isPointInsideHubCircle(NSEvent.mouseLocation) {
+                guard let self, self.panel?.isVisible == true, !self.isHiding,
+                      self.presentationID == request else { return }
+                if isMovement {
+                    self.publishHoverLocation(onScreen: NSEvent.mouseLocation)
+                } else if !self.isPointInsideHubCircle(NSEvent.mouseLocation) {
                     self.hide(immediately: true)
                 }
             }
@@ -179,6 +204,7 @@ final class HaloPanelController {
     }
 
     private func stopOutsideClickMonitoring() {
+        focusRecovery.cancel()
         clickGate.reset()
         if let localMouseMonitor {
             NSEvent.removeMonitor(localMouseMonitor)

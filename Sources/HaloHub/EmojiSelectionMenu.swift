@@ -27,19 +27,20 @@ enum EmojiCatalog {
 
 struct EmojiSelectionMenu: View {
     @Binding var selection: String
+    var emptyLabel: String? = nil
     @State private var isExpanded = false
 
     var body: some View {
         Button { isExpanded.toggle() } label: {
             HStack {
-                Text(selection.isEmpty ? L10n.t("settings.iconOriginal") : selection)
+                Text(selection.isEmpty ? (emptyLabel ?? L10n.t("settings.iconOriginal")) : selection)
                 Spacer()
                 Image(systemName: "chevron.down")
             }
             .padding(.vertical, 5)
         }
         .accessibilityLabel(L10n.t("settings.iconEmoji"))
-        .accessibilityValue(selection.isEmpty ? L10n.t("settings.iconOriginal") : selection)
+        .accessibilityValue(selection.isEmpty ? (emptyLabel ?? L10n.t("settings.iconOriginal")) : selection)
         .popover(isPresented: $isExpanded, arrowEdge: .bottom) {
             EmojiSelectionPanel(selection: selection) { symbol in
                 selection = symbol
