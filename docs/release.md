@@ -7,7 +7,7 @@ This document describes the current manual release process for PopDeck. Sparkle 
 - App name: `PopDeck`
 - Bundle identifier: `com.tangfanx.popdeck`
 - Version: `0.1.12`
-- Build: `12`
+- Build: `13`
 - Minimum macOS version: `14.0`
 
 ## Create Local Artifacts
