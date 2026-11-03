@@ -2,9 +2,10 @@
 set -euo pipefail
 
 APP_NAME="PopDeck"
-VERSION="${POPDECK_VERSION:-0.1.11}"
 CONFIGURATION="${1:-release}"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$ROOT_DIR/scripts/release-version.sh"
+VERSION="${POPDECK_VERSION:-$RELEASE_VERSION}"
 DIST_DIR="$ROOT_DIR/dist"
 APP_DIR="${POPDECK_APP_DIR:-$ROOT_DIR/.build/$APP_NAME.app}"
 STAGING_DIR="$ROOT_DIR/.build/dmg/$APP_NAME-$VERSION"

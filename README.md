@@ -9,6 +9,8 @@ Free features include apps, files, folders, URLs, editable shell commands (silen
 
 PRO is planned as a ¥6 one-time personal lifetime purchase, including future updates on the buyer's own Macs. It is currently being validated only in an independent development app and has not been released. Public PRO badges and information do not include paid feature implementations or license verification.
 
+The official distribution also supports Windows 10/11 (x64 and ARM64). Download either platform from [the website](https://popdeck.pages.dev/). Both editions share the marketing version in `VERSION`; this repository continues to publish only the macOS Free source edition.
+
 ## Build and test
 
 Requires macOS 14+, Xcode 26+ or a matching Swift toolchain.

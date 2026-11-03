@@ -6,7 +6,7 @@ import re
 import subprocess
 import sys
 
-TOP = {'.gitignore', 'Package.swift', 'LICENSE', 'README.md', 'README.zh-CN.md', 'appcast.xml'}
+TOP = {'VERSION', 'MACOS_BUILD_NUMBER', '.gitignore', 'Package.swift', 'LICENSE', 'README.md', 'README.zh-CN.md', 'appcast.xml'}
 DOCS = {'development-builds.md', 'source-boundaries.md', 'native-liquid-glass-verification.md', 'item-editing-validation.md', 'auto-update.md', 'release.md'}
 PRIVATE_NAMES = {'signing-key.json', 'ledger.json', 'owner-test-license.json', 'popdeck-public-keys.json', 'pro-alipay.png', 'pro-wechat.png', '.popdeck-pro-root'}
 IMPLEMENTATION = re.compile(rb'\b(?:struct|class|enum)\s+(?:ExpandedHaloGroup|GroupFanView|GroupEditorSheet|CommandSetSheet|NamedCommand|ProLicenseStore|ProLicenseVerifier|ProLicensePayload|ProSettingsView|ProFreePreviewControl|HaloRingCollection|HaloRingMetrics|HaloPanelInput|HaloPanelPresentation|SettingsRingGeometry|CommandSetAppearance|CommandSetAppearanceControls|CommandSetSectorLabel)\b')
